@@ -1,2 +1,83 @@
-<h1>{{title}}</h1>
-<p>Welcome to {{title}}</p>
+<div class='container clear'>
+  <div class='component-float'>
+    <div class='component-wrapper'>
+      <div class='action-comp'>
+        <div class='action-comp-wrapper'>
+          <h4>Select an Action:</h4>
+          <select class='form-control'>
+            <option>
+              Execute Command
+            </option>
+            <option>
+              Derp
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class='component-wrapper'>
+      <div class='command-comp'>
+        <div class='command-comp-header'>
+          <h4>Execute Command</h4>
+        </div>
+        <div class='command-comp-body'>
+          <div class='comp-body-wrap'>
+            <div class="input-group">
+              <span class="input-group-addon" id="basic-addon1">Command</span>
+              <input type="text" class="form-control" placeholder="ls -l" aria-describedby="basic-addon1">
+            </div>
+          </div>
+        </div>
+        <div class='command-comp-footer'>
+          <div class='button-wrap'>
+            <button id='execute-action' class='btn btn-primary'>Execute</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class='component-wrapper'>
+    <div class='servers-comp'>
+      <div class='servers-comp-wrapper'>
+        <div class='servers-comp-header'>
+          <h3>Servers</h3>
+        </div>
+        <div class='servers-comp-serverlist'>
+          <div class='serverlist-category'>
+            <div class='serverlist-header'>
+              Survival Games Reloaded
+            </div>
+            <div class='serverlist-items'>
+              <div class='serverlist-item'>
+                SGRL 1
+              </div>
+              <div class='serverlist-item'>
+                SGRL 2
+              </div>
+              <div class='serverlist-item'>
+                SGRL 3
+              </div>
+            </div>
+          </div>
+          <div class='serverlist-category'>
+            <div class='serverlist-header'>
+              Jedicraft
+            </div>
+            <div class='serverlist-items'>
+              <div class='serverlist-item'>
+                Jedi 1
+              </div>
+              <div class='serverlist-item'>
+                Jedi 1
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class='servers-comp-footer'>
+          <span class='glyphicon glyphicon-plus'></span> Add Server
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

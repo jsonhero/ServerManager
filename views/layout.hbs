@@ -2,9 +2,24 @@
 <html>
   <head>
     <title>{{title}}</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <link rel='stylesheet' href='/bower_components/bootstrap/dist/css/bootstrap.min.css'/>
   </head>
   <body>
+    <header>
+      <div class='container'>
+        <div class='row'>
+          <div class='col-lg-3'>
+            <h2 class='logo'>
+              Server Panel
+            </h2>
+          </div>
+          <div class='col-lg-3 pull-right'>
+            <h3 class='pull-right'>Log In</h3>
+          </div>
+        </div>
+      </div>
+    </header>
     {{{body}}}
   </body>
 </html>

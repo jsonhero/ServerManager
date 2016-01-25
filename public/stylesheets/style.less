@@ -1,8 +1,187 @@
+/*********************** VARIABLES ***********************/
+@grey: rgb(61, 64, 74);
+
+/*********************** GENERAL ***********************/
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background: url('/images/pattern.png') repeat;
+  color: white !important;
 }
 
 a {
   color: #00B7FF;
+}
+
+.clear {
+  clear: both;
+}
+
+.button-wrap {
+  width: 50%;
+  margin: 0 auto;
+}
+
+header {
+  height: 60px;
+  width: 100%;
+  background: @grey;
+}
+
+.component-float {
+  float: left;
+  width: 72%;
+}
+
+.comp-body-wrap {
+  padding: 10px;
+}
+/****** USER COMPONENTS *******/
+
+.User-Login {
+  margin-top: 10%;
+}
+
+#User-Login {
+  color: black;
+  background: white;
+  padding: 20px;
+  box-shadow: 1px 1px 3px rgb(148, 148, 148);
+}
+
+/****** Server Components *****/
+
+.component-wrapper {
+  margin-top: 12px;
+  color: black;
+}
+
+
+.servers-comp {
+  float: right;
+  background: white;
+  width: 25%;
+  box-shadow: 1px 1px 3px rgb(148, 148, 148);
+}
+
+.servers-comp-wrapper {
+  padding: 0px;
+}
+
+.servers-comp-header {
+  text-align: center;
+  border-bottom: 1px solid @grey;
+}
+
+.servers-comp-footer {
+  margin-top: 20px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-top: 1px solid @grey;
+}
+
+
+.component {
+  height: 300px;
+}
+
+.component-header {
+  width: 100%;
+  height: 10%;
+  background-color: @grey;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.component-name {
+  padding-top: 3px;
+  margin-left: 10px;
+}
+
+.component-body {
+  border-left: 1px solid @grey;
+  border-right: 1px solid @grey;
+  border-bottom: 1px solid @grey;
+  width: 100%;
+  height: 90%;
+  background: linear-gradient(rgb(237, 237, 237), rgb(226, 223, 223));
+  box-shadow: 1px 1px 3px black;
+}
+
+
+
+/*********************** SERVER LIST ***********************/
+
+.servers-comp-serverlist {
+  margin-top: 10px;
+  color: black;
+}
+
+.serverlist-category {
+  width: 100%;
+}
+
+.serverlist-header {
+  background: rgb(227, 227, 227);
+  height: 30px;
+  line-height: 30px;
+  padding-left: 5px;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+}
+
+.serverlist-header:active {
+  background: rgb(48, 223, 108);
+}
+
+.serverlist-items {
+
+}
+
+.serverlist-item {
+  background: rgb(236, 236, 236);
+  padding-left: 20px;
+}
+
+.serverlist-item:active {
+  background: rgb(48, 223, 108);
+}
+
+
+/*********************** ACTION COMPONENT ***********************/
+
+.action-comp {
+  width: 100%;
+  background: white;
+  box-shadow: 1px 1px 3px rgb(148, 148, 148);
+}
+
+.action-comp-wrapper {
+  padding: 10px;
+}
+
+/*********************** COMMAND COMPONENT ***********************/
+
+.command-comp {
+  margin-top: 20px;
+  width: 100%;
+  background: white;
+  box-shadow: 1px 1px 3px rgb(148, 148, 148);
+}
+
+.command-comp-header {
+  background: @grey;
+  height: 40px;
+  color: white;
+}
+
+.command-comp-footer {
+  width: 100%;
+  border-top: 1px solid @grey;
+  padding: 10px;
+}
+
+#execute-action {
+  margin: 0 auto;
+  width: 100%;
 }
