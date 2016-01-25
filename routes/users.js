@@ -18,6 +18,12 @@ router.get('/login', function(req, res, next) {
   res.render('login');
 });
 
+router.get('/logout', function(req, res){
+  req.session.user = null;
+  req.logout();
+  res.redirect('/');
+})
+
 router.post('/login', passport.authenticate('local', {failureRedirect: '/users/login'}),
   function(req, res) {
     console.log('leggo');

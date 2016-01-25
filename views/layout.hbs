@@ -14,9 +14,17 @@
               Server Panel
             </h2>
           </div>
+          {{#if session.user}}
+          <div class='col-lg-3 pull-right'>
+            <a href='/users/logout'><button class='btn btn-primary pull-right'>Logout</button></a>
+            <h3 class='pull-right'>{{session.user.username}}</h3>
+          </div>
+
+          {{else}}
           <div class='col-lg-3 pull-right'>
             <h3 class='pull-right'>Log In</h3>
           </div>
+          {{/if}}
         </div>
       </div>
     </header>
