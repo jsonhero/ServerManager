@@ -1,10 +1,10 @@
 var host_queue = [];
 
+//************************* MAIN PAGE **************************
+
 var ServerBox = React.createClass({
   getInitialState: function() {
-    return {data: {
-      hostgroups: []
-    }};
+    return {data: []};
   },
   componentDidMount: function() {
     $.ajax({
@@ -12,12 +12,33 @@ var ServerBox = React.createClass({
       dataType: 'json',
       cache: false,
       success: function(data) {
+        data = this.sortGroups(data);
         this.setState({data: data});
       }.bind(this),
       error: function(err) {
         console.log(this.props.url, err);
       }.bind(this)
     });
+  },
+  sortGroups: function(hosts) {
+    var hostgroups = [];
+    var groups = {};
+    hosts.hosts.forEach(function(host) {
+      var group = host.hostgroup;
+      if (!groups[group]) {
+        groups[group] = {
+          hosts: [host],
+          name: group
+        }
+      } else {
+        groups[group].hosts.push(host);
+      }
+    });
+    var keys = Object.keys(groups);
+    keys.forEach(function(key) {
+      hostgroups.push(groups[key]);
+    });
+    return hostgroups;
   },
   render: function() {
     return (
@@ -49,7 +70,6 @@ var ServerList = React.createClass({
         chi.addClass('active-item');
       }
     });
-    console.log(host_queue);
   },
   clickRemove: function(e) {
     e.stopPropagation();
@@ -62,10 +82,9 @@ var ServerList = React.createClass({
         chi.removeClass('active-item');
       }
     });
-    console.log(host_queue);
   },
   render: function() {
-    var serverNodes = this.props.data.hostgroups.map(function(server) {
+    var serverNodes = this.props.data.map(function(server) {
       return(
         <div className='serverlist-category'>
           <div className='serverlist-header' id={server.name}  onClick={this.clickHandler}>
@@ -112,7 +131,6 @@ var ServerItem = React.createClass({
       host_queue.push(host);
       target.classList.add('active-item');
     }
-    console.log(host_queue);
   },
   render: function() {
     var datclass = 'serverlist-item ' + this.props.name;
@@ -124,7 +142,171 @@ var ServerItem = React.createClass({
   }
 });
 
-ReactDOM.render(
-  <ServerBox url='/api/hosts' />,
-  document.getElementById('servers')
-)
+
+//************************* MANAGER PAGE **************************
+
+var ManagerBox = React.createClass({
+  getInitialState: function() {
+    return {data: {
+      hosts: []
+    }};
+  },
+  managerSubmit: function(host) {
+    var hosts = this.state.data.hosts;
+    var newHosts = hosts.concat([host])
+    this.setState({ data: {
+      hosts: newHosts
+    }});
+
+    $.ajax({
+      url: '/api/hosts',
+      type: 'POST',
+      dataType: 'json',
+      data: host,
+      success: function() {
+      },
+      error: function() {
+      }
+    });
+  },
+  componentDidMount: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(err) {
+        console.log(this.props.url, err);
+      }.bind(this)
+    });
+  },
+  render: function() {
+    return (
+      <div className='server-manager'>
+        <ManagerForm onManagerSubmit={this.managerSubmit} />
+        <table className='table table-striped'>
+          <thead>
+            <tr>
+              <th>IP</th>
+              <th>Hostname</th>
+              <th>Host Group</th>
+              <th>Edit</th>
+            </tr>
+          </thead>
+          <TableList data={this.state.data} />
+        </table>
+      </div>
+    );
+  }
+});
+
+var ManagerForm = React.createClass({
+  getInitialState: function() {
+    return {hostname: '', hostgroup: '', IP: ''};
+  },
+  handleHostChange: function(e) {
+    this.setState({hostname: e.target.value});
+  },
+  handleGroupChange: function(e) {
+    this.setState({hostgroup: e.target.value});
+  },
+  handleIPChange: function(e) {
+    this.setState({IP: e.target.value});
+  },
+  handleSubmit: function(e) {
+    e.preventDefault();
+    var host = this.state.hostname.trim();
+    var group = this.state.hostgroup.trim();
+    var ip = this.state.IP.trim();
+
+    if (!host || !group || !ip) {
+      return;
+    }
+    this.props.onManagerSubmit({hostname: host, hostgroup: group, IP: ip});
+    this.setState({hostname: '', hostgroup: '', IP: ''});
+  },
+  render: function() {
+    return (
+      <form className="managerForm" onSubmit={this.handleSubmit}>
+        <div className='FormLabel'>Host Name: </div>
+        <input className='form-control' value={this.state.hostname} onChange={this.handleHostChange} type="text" placeholder="Host name..." />
+        <div className='FormLabel'>Host Group: </div>
+        <input className='form-control' value={this.state.hostgroup} onChange={this.handleGroupChange} type="text" placeholder="Host group..." />
+        <div className='FormLabel'>Server IP: </div>
+        <input className='form-control' value={this.state.IP} type="text" onChange={this.handleIPChange} placeholder="Host IP..." />
+        <input id='manager-submit' className='form-control' type="submit" value="Submit" />
+      </form>
+    );
+  }
+});
+
+
+var TableList = React.createClass({
+  render: function() {
+    var nodes = this.props.data.hosts.map(function(host) {
+      return (
+        <TableRow key={host.hostname} data={host} />
+      );
+    });
+
+    return (
+      <tbody>
+        {nodes}
+      </tbody>
+    );
+  }
+});
+
+var TableRow = React.createClass({
+  handleRemove: function(e) {
+    var id = e.target.dataset.id;
+    var ele = document.getElementById(id);
+    ele.remove();
+    $.ajax({
+      url: '/api/hosts',
+      type: 'DELETE',
+      data: {hostname: id},
+      dataType: 'json',
+      success: function() {
+      },
+      error: function() {
+      }
+    });
+  },
+  render: function() {
+    return (
+      <tr id={this.props.data.hostname}>
+        <td>
+          {this.props.data.IP}
+        </td>
+        <td>
+          {this.props.data.hostname}
+        </td>
+        <td>
+          {this.props.data.hostgroup}
+        </td>
+        <td>
+          <button onClick={this.handleRemove} data-id={this.props.data.hostname} className="btn btn-primary">Delete</button>
+        </td>
+      </tr>
+    );
+  }
+});
+
+
+
+//************************* ROUTER **************************
+
+console.log(window.location.pathname);
+//crappy temporary routing system
+if (window.location.pathname == '/') {
+  ReactDOM.render(
+    <ServerBox url='/api/hosts' />,
+    document.getElementById('servers'))
+} else if (window.location.pathname == '/manager') {
+  ReactDOM.render(
+    <ManagerBox url='/api/hosts' />,
+    document.getElementById('server-manager'))
+}
