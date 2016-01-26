@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{title}}</title>
-    <link rel='stylesheet' href='/stylesheets/style.css'/>
     <link rel='stylesheet' href='/bower_components/bootstrap/dist/css/bootstrap.min.css'/>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+    <script src='/bower_components/jquery/dist/jquery.min.js'></script>
+    <script src='/bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
   </head>
   <body>
     <header>
@@ -15,9 +23,26 @@
             </h2>
           </div>
           {{#if session.user}}
-          <div class='col-lg-3 pull-right'>
-            <a href='/users/logout'><button class='btn btn-primary pull-right'>Logout</button></a>
-            <h3 class='pull-right'>{{session.user.username}}</h3>
+          <div class='col-lg-4 pull-right'>
+            <ul id='nav'>
+              <li>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      Menu
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                      <li><a href="/manager">Add Server</a></li>
+                      <li><a href="#">Server History</a></li>
+                      <li><a href="/">Server Action</a></li>
+                    </ul>
+                  </div>
+              </li>
+              <li><a href='/users/logout'><button class='btn btn-primary'>Logout</button></a></li>
+              <li><div class='user'>
+                {{session.user.username}}
+              </div></li>
+            </ul>
           </div>
 
           {{else}}

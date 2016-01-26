@@ -1,0 +1,30 @@
+{
+  "hostgroups": [
+    {
+      "name": "sgrl", "hosts": [
+        {
+          "hostname": "sgrl1"
+        },
+        {
+          "hostname": "sgrl2"
+        },
+        {
+          "hostname": "sgrl3"
+        }
+      ]
+    },
+    {
+      "name": "jedicraft", "hosts": [
+        {
+          "hostname": "jedi1"
+        },
+        {
+          "hostname": "jedi2"
+        },
+        {
+          "hostname": "jedi3"
+        }
+      ]
+    }
+  ]
+}

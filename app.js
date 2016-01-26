@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 
 var routes = require('./routes/index');
+var api = require('./routes/api');
 var users = require('./routes/users');
 
 var mongoose = require('mongoose');
@@ -58,6 +59,7 @@ app.use(passport.session());
 app.use(isAuthenticated);
 
 app.use('/', routes);
+app.use('/api', api);
 app.use('/users', users);
 
 // catch 404 and forward to error handler
