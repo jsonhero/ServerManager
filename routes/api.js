@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var fs = require('fs');
+var actions = require('./actions');
 
+router.use('/action', actions);
 
 router.get('/hosts', function(req, res) {
   var json = fs.readFileSync('hosts.json', {encoding: 'utf8'});

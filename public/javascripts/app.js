@@ -204,7 +204,7 @@ var ManagerBox = React.createClass({
 
 var ManagerForm = React.createClass({
   getInitialState: function() {
-    return {hostname: '', hostgroup: '', IP: ''};
+    return {hostname: '', hostgroup: '', host: ''};
   },
   handleHostChange: function(e) {
     this.setState({hostname: e.target.value});
@@ -213,19 +213,19 @@ var ManagerForm = React.createClass({
     this.setState({hostgroup: e.target.value});
   },
   handleIPChange: function(e) {
-    this.setState({IP: e.target.value});
+    this.setState({host: e.target.value});
   },
   handleSubmit: function(e) {
     e.preventDefault();
     var host = this.state.hostname.trim();
     var group = this.state.hostgroup.trim();
-    var ip = this.state.IP.trim();
+    var ip = this.state.host.trim();
 
     if (!host || !group || !ip) {
       return;
     }
-    this.props.onManagerSubmit({hostname: host, hostgroup: group, IP: ip});
-    this.setState({hostname: '', hostgroup: '', IP: ''});
+    this.props.onManagerSubmit({hostname: host, hostgroup: group, host: ip});
+    this.setState({hostname: '', hostgroup: '', host: ''});
   },
   render: function() {
     return (
@@ -235,7 +235,7 @@ var ManagerForm = React.createClass({
         <div className='FormLabel'>Host Group: </div>
         <input className='form-control' value={this.state.hostgroup} onChange={this.handleGroupChange} type="text" placeholder="Host group..." />
         <div className='FormLabel'>Server IP: </div>
-        <input className='form-control' value={this.state.IP} type="text" onChange={this.handleIPChange} placeholder="Host IP..." />
+        <input className='form-control' value={this.state.host} type="text" onChange={this.handleIPChange} placeholder="Host IP..." />
         <input id='manager-submit' className='form-control' type="submit" value="Submit" />
       </form>
     );
@@ -279,7 +279,7 @@ var TableRow = React.createClass({
     return (
       <tr id={this.props.data.hostname}>
         <td>
-          {this.props.data.IP}
+          {this.props.data.host}
         </td>
         <td>
           {this.props.data.hostname}
@@ -288,14 +288,91 @@ var TableRow = React.createClass({
           {this.props.data.hostgroup}
         </td>
         <td>
-          <button onClick={this.handleRemove} data-id={this.props.data.hostname} className="btn btn-primary">Delete</button>
+          <button onClick={this.handleRemove} data-id={this.props.data.hostname} className="btn btn-danger">Delete</button>
         </td>
       </tr>
     );
   }
 });
 
+//************************* ACTION MODEL **************************
 
+var ActionBox = React.createClass({
+  getInitialState: function() {
+    return {data: {}, url: ''};
+  },
+  setParentState: function(url, data) {
+    this.setState({data: data, url: url});
+  },
+  render: function() {
+    return (
+    <div className='components'>
+      <div className='component-header'>
+        <div className='component-name'>
+          Execute Command
+        </div>
+      </div>
+      <div className='component-body'>
+        <div className='comp-body-wrap'>
+          <ActionBody data={this.state.data} setParentState={this.setParentState}/>
+        </div>
+      </div>
+      <div className='component-footer'>
+        <ActionFooter setParentState={this.setParentState} data={this.state} />
+      </div>
+    </div>
+  );
+  }
+});
+
+var ActionBody = React.createClass({
+  getInitialState: function() {
+    return {url: '/api/action/command/', data: { command: ''}};
+  },
+  handleCommandChange: function(e) {
+    var command = e.target.value;
+    this.state.data.command = command;
+
+    this.props.setParentState(this.state.url, this.state.data)
+  },
+  render: function() {
+    var commandValue = '';
+    if (this.props.data.hasOwnProperty('command')) {
+      commandValue = this.props.data.command;
+    }
+    return (
+      <div className="input-group">
+        <span className="input-group-addon" id="basic-addon1">Command</span>
+        <input onChange={this.handleCommandChange} value={this.props.data.command} type="text" className="form-control" placeholder="ls -l" aria-describedby="basic-addon1"/>
+      </div>
+    );
+  }
+});
+
+var ActionFooter = React.createClass({
+  handleExecute: function(e) {
+    $.ajax({
+      url: this.props.data.url,
+      type: 'POST',
+      dataType: 'json',
+      data: this.props.data.data,
+      success: function() {
+
+      },
+      error: function() {
+
+      }
+    })
+    this.props.setParentState({}, '');
+  },
+  render: function() {
+    return (
+      <div className='button-wrap'>
+        <button onClick={this.handleExecute} id='execute-action' className='btn btn-warning'>Execute</button>
+      </div>
+    );
+  }
+});
 
 //************************* ROUTER **************************
 
@@ -305,6 +382,9 @@ if (window.location.pathname == '/') {
   ReactDOM.render(
     <ServerBox url='/api/hosts' />,
     document.getElementById('servers'))
+  ReactDOM.render(
+    <ActionBox url='/api/hosts' />,
+    document.getElementById('action'))
 } else if (window.location.pathname == '/manager') {
   ReactDOM.render(
     <ManagerBox url='/api/hosts' />,
