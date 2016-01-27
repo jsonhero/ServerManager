@@ -23,7 +23,7 @@ var ServerBox = React.createClass({
   sortGroups: function(hosts) {
     var hostgroups = [];
     var groups = {};
-    hosts.hosts.forEach(function(host) {
+    hosts.forEach(function(host) {
       var group = host.hostgroup;
       if (!groups[group]) {
         groups[group] = {
@@ -147,17 +147,13 @@ var ServerItem = React.createClass({
 
 var ManagerBox = React.createClass({
   getInitialState: function() {
-    return {data: {
-      hosts: []
-    }};
+    return {data: []};
   },
   managerSubmit: function(host) {
-    var hosts = this.state.data.hosts;
+    var hosts = this.state.data;
     var newHosts = hosts.concat([host])
-    this.setState({ data: {
-      hosts: newHosts
-    }});
-
+    this.setState({ data: newHosts });
+    console.log('ADDING HOST', host);
     $.ajax({
       url: '/api/hosts',
       type: 'POST',
@@ -204,7 +200,7 @@ var ManagerBox = React.createClass({
 
 var ManagerForm = React.createClass({
   getInitialState: function() {
-    return {hostname: '', hostgroup: '', host: ''};
+    return {hostname: '', hostgroup: '', host: '', username: '', password: ''};
   },
   handleHostChange: function(e) {
     this.setState({hostname: e.target.value});
@@ -212,30 +208,43 @@ var ManagerForm = React.createClass({
   handleGroupChange: function(e) {
     this.setState({hostgroup: e.target.value});
   },
+  handleUsernameChange: function(e) {
+    this.setState({username: e.target.value});
+  },
+  handlePasswordChange: function(e) {
+    this.setState({password: e.target.value});
+  },
   handleIPChange: function(e) {
     this.setState({host: e.target.value});
   },
   handleSubmit: function(e) {
+    console.log('making a sbmit!');
     e.preventDefault();
     var host = this.state.hostname.trim();
     var group = this.state.hostgroup.trim();
     var ip = this.state.host.trim();
+    var username = this.state.username.trim();
+    var password = this.state.password.trim();
 
     if (!host || !group || !ip) {
       return;
     }
-    this.props.onManagerSubmit({hostname: host, hostgroup: group, host: ip});
-    this.setState({hostname: '', hostgroup: '', host: ''});
+    this.props.onManagerSubmit({hostname: host, hostgroup: group, host: ip, username: username, password: password});
+    this.setState({hostname: '', hostgroup: '', host: '', username: '', password: ''});
   },
   render: function() {
     return (
       <form className="managerForm" onSubmit={this.handleSubmit}>
+        <div className='FormLabel'>IP: </div>
+        <input className='form-control' value={this.state.host} type="text" onChange={this.handleIPChange} placeholder="Host IP..." />
         <div className='FormLabel'>Host Name: </div>
         <input className='form-control' value={this.state.hostname} onChange={this.handleHostChange} type="text" placeholder="Host name..." />
         <div className='FormLabel'>Host Group: </div>
         <input className='form-control' value={this.state.hostgroup} onChange={this.handleGroupChange} type="text" placeholder="Host group..." />
-        <div className='FormLabel'>Server IP: </div>
-        <input className='form-control' value={this.state.host} type="text" onChange={this.handleIPChange} placeholder="Host IP..." />
+        <div className='FormLabel'>Username: </div>
+        <input className='form-control' value={this.state.username} onChange={this.handleUsernameChange} type="text" placeholder="Host username..." />
+        <div className='FormLabel'>Password: </div>
+        <input className='form-control' value={this.state.password} onChange={this.handlePasswordChange} type="password" placeholder="Host password..." />
         <input id='manager-submit' className='form-control' type="submit" value="Submit" />
       </form>
     );
@@ -245,7 +254,7 @@ var ManagerForm = React.createClass({
 
 var TableList = React.createClass({
   render: function() {
-    var nodes = this.props.data.hosts.map(function(host) {
+    var nodes = this.props.data.map(function(host) {
       return (
         <TableRow key={host.hostname} data={host} />
       );
@@ -353,6 +362,7 @@ var ActionFooter = React.createClass({
   handleExecute: function(e) {
     var data = this.props.data.data;
     data.servers = host_queue;
+    console.log('Sending over ', data.servers);
     $.ajax({
       url: this.props.data.url,
       type: 'POST',
@@ -489,7 +499,7 @@ var HistoryBox = React.createClass({
     var hostgroups = [];
     var groups = {};
     hosts.forEach(function(host) {
-      var group = host.hostgroup;
+      var group = host.hostname;
       if (!groups[group]) {
         groups[group] = {
           hosts: [host],
@@ -509,6 +519,9 @@ var HistoryBox = React.createClass({
   render: function() {
     return (
       <div className='component'>
+        <div className='history-header'>
+          <h3 className='history-text'>Server History</h3>
+        </div>
           <HistoryGroups data={this.state.data}/>
       </div>
     );

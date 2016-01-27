@@ -144,20 +144,22 @@ SSHPool.prototype.connect = function() {
 
 var Host = function(options) {
   this._client = new Client();
-
   this.connected = null;
   this.host = options.host;
   this.port = options.port;
   this.username = options.username;
   this.password = options.password;
+  
 };
 
 Host.prototype.connect = function(SSHPool) {
   var self = this;
   this._client.on('ready', function() {
+    console.log('test');
     self.connected = true;
     SSHPool.emit('ready', this);
   });
+
 
   this._client.on('close', function() {
     self.connected = false;

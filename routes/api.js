@@ -1,36 +1,33 @@
 var express = require('express');
 var router = express.Router();
+var Host = require('../models/Host');
 var fs = require('fs');
 var actions = require('./actions');
 
 router.use('/action', actions);
 
 router.get('/hosts', function(req, res) {
-  var json = fs.readFileSync('hosts.json', {encoding: 'utf8'});
-  res.send(json);
+  Host.find({}, function(err, hosts) {
+    res.json(hosts);
+  });
 });
 
 router.post('/hosts', function(req, res) {
   var host = req.body;
-  var json = fs.readFileSync('hosts.json', {encoding: 'utf8'});
-  var hosts = JSON.parse(json);
-  hosts.hosts.push(host);
-  fs.writeFileSync('hosts.json', JSON.stringify(hosts));
+  Host.create({
+    host: host.host,
+    hostname: host.hostname,
+    hostgroup: host.hostgroup,
+    username: host.username,
+    password: host.password
+  }, function(err, host) {
+    if (err) console.log(err);
+  });
 });
 
 router.delete('/hosts', function(req, res) {
-  var hostname = req.body.hostname;
-  var json = fs.readFileSync('hosts.json', {encoding: 'utf8'});
-  var hosts = JSON.parse(json);
-
-  for (var i = 0; i < hosts.hosts.length; i++) {
-    if (hosts.hosts[i].hostname == hostname) {
-      hosts.hosts.splice(i, 1);
-      break;
-    }
-  };
-
-  fs.writeFileSync('hosts.json', JSON.stringify(hosts));
+  Host.remove({ hostname: req.body.hostname}, function(err, removed) {
+  });
 });
 
 module.exports = router;
