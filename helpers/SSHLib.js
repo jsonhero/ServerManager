@@ -155,7 +155,6 @@ var Host = function(options) {
 Host.prototype.connect = function(SSHPool) {
   var self = this;
   this._client.on('ready', function() {
-    console.log('A HOST IS CONNECTING');
     self.connected = true;
     SSHPool.emit('ready', this);
   });
@@ -172,10 +171,6 @@ Host.prototype.connect = function(SSHPool) {
     }
     this.removeAllListeners('ready');
     this.removeAllListeners('close');
-  });
-
-  this._client.on('error', function(err) {
-
   });
 
   this._client.connect({

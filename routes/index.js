@@ -10,4 +10,8 @@ router.get('/manager', function(req, res, next) {
   res.render('manager');
 });
 
+router.get('/history', function(req, res, next) {
+  res.render('history');
+});
+
 module.exports = router;

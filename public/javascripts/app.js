@@ -351,11 +351,13 @@ var ActionBody = React.createClass({
 
 var ActionFooter = React.createClass({
   handleExecute: function(e) {
+    var data = this.props.data.data;
+    data.servers = host_queue;
     $.ajax({
       url: this.props.data.url,
       type: 'POST',
       dataType: 'json',
-      data: this.props.data.data,
+      data: data,
       success: function() {
 
       },
@@ -374,6 +376,167 @@ var ActionFooter = React.createClass({
   }
 });
 
+//************************* SERVER STATUS **************************
+
+var StatusBox = React.createClass({
+  getInitialState: function() {
+    return { data: [] }
+  },
+  loadHistory: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function() {
+      }
+    });
+  },
+  componentDidMount: function() {
+    this.loadHistory();
+    setInterval(this.loadHistory, this.props.pollInterval)
+  },
+  render: function() {
+    return (
+      <div className='component'>
+        <div className='component-header'>
+          <div className='component-name'>
+            Server Status
+          </div>
+        </div>
+          <StatusList data={this.state.data}/>
+      </div>
+    );
+  }
+});
+
+var StatusList = React.createClass({
+  render: function() {
+    var nodes = this.props.data.map(function(log) {
+      return (
+          <StatusRow data={log} />
+      )
+    }).reverse();
+    return (
+      <div className='component-body'>
+        <table className='table table-striped'>
+          <tbody>
+          {nodes}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+});
+
+var StatusRow = React.createClass({
+  handleLogHoverOn: function(e) {
+    e.stopPropagation();
+    e.target.lastChild.style.display = "block";
+  },
+  handleLogHoverOut: function(e) {
+    e.stopPropagation();
+    e.target.lastChild.style.display = "none";
+  },
+  render: function() {
+    var status = 'success';
+    if (this.props.data.error) status = "danger";
+    return(
+      <tr className={status + ' log-row'} >
+        <td>
+          {this.props.data.user}
+        </td>
+        <td>
+          {this.props.data.hostname}
+        </td>
+        <td>
+          {this.props.data.actiontype + ": " + this.props.data.action}
+        </td>
+        <td>
+          {moment(this.props.data.date).format("MMMM Do YYYY, h:mm a")}
+        </td>
+        <td className="log" onMouseOut={this.handleLogHoverOut} onMouseOver={this.handleLogHoverOn}>
+          <div className='server-log'>Log</div>
+          <div className='log-container'><span className='server-output'><div className="log">{this.props.data.output}</div></span></div>
+        </td>
+      </tr>
+    )
+  }
+})
+
+//************************* History **************************
+
+var HistoryBox = React.createClass({
+  getInitialState: function() {
+    return {data: []};
+  },
+  componentDidMount: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        data = this.sortGroups(data);
+        this.setState({data: data});
+      }.bind(this),
+      error: function() {
+      }
+    });
+  },
+  sortGroups: function(hosts) {
+    var hostgroups = [];
+    var groups = {};
+    hosts.forEach(function(host) {
+      var group = host.hostgroup;
+      if (!groups[group]) {
+        groups[group] = {
+          hosts: [host],
+          name: group
+        }
+      } else {
+        groups[group].hosts.push(host);
+      }
+    });
+    var keys = Object.keys(groups);
+    keys.forEach(function(key) {
+      hostgroups.push(groups[key]);
+    });
+    console.log(hostgroups);
+    return hostgroups;
+  },
+  render: function() {
+    return (
+      <div className='component'>
+          <HistoryGroups data={this.state.data}/>
+      </div>
+    );
+  }
+});
+
+var HistoryGroups = React.createClass({
+  render: function() {
+    var groupNodes = this.props.data.map(function(group) {
+      return (
+        <div className='component-wrapper'>
+          <div className='component-header'>
+            <div className='component-name'>
+              {group.name}
+            </div>
+          </div>
+          <StatusList data={group.hosts} />
+        </div>
+      )
+    });
+    return (
+      <div className='component'>
+        {groupNodes}
+      </div>
+    );
+  }
+});
+
 //************************* ROUTER **************************
 
 console.log(window.location.pathname);
@@ -385,8 +548,15 @@ if (window.location.pathname == '/') {
   ReactDOM.render(
     <ActionBox url='/api/hosts' />,
     document.getElementById('action'))
+  ReactDOM.render(
+    <StatusBox url='/api/action/history' pollInterval={2000}/>,
+    document.getElementById('status'))
 } else if (window.location.pathname == '/manager') {
   ReactDOM.render(
     <ManagerBox url='/api/hosts' />,
     document.getElementById('server-manager'))
+} else if (window.location.pathname == '/history') {
+  ReactDOM.render(
+    <HistoryBox url='/api/action/allhistory' />,
+    document.getElementById('history'))
 }

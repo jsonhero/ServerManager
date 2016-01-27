@@ -16,6 +16,26 @@ a {
 .category-add {
 
 }
+.server-output {
+  width: 400px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: white;
+  box-shadow: 1px 1px 3px rgb(148, 148, 148);
+}
+.log {
+  padding: 10px;
+}
+
+.log-container {
+  display: none;
+  position: relative;
+}
+
+.server-log {
+  color: rgb(80, 91, 168);
+}
 
 #manager-submit {
   margin-top: 10px;
@@ -97,7 +117,7 @@ header {
 .component-wrapper {
   margin-top: 12px;
   color: black;
-  box-shadow: 1px 1px 3px black;
+  box-shadow: 1px 1px 3px rgb(148, 148, 148);
 }
 
 
@@ -125,9 +145,7 @@ header {
   border-top: 1px solid @grey;
 }
 
-
 .component {
-  height: 300px;
 }
 
 .component-header {
@@ -146,6 +164,8 @@ header {
 .component-body {
   background: white;
   width: 100%;
+  position: relative;
+  min-height: 100px;
 }
 
 .component-footer {

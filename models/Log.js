@@ -1,11 +1,14 @@
 var mongoose = require('mongoose');
 
-var UserSchema = new mongoose.Schema({
+var LogSchema = new mongoose.Schema({
+  user: { type: String, default: 'N/A'},
   hostname: String,
-  password: String,
-  email: String
+  hostgroup: String,
+  actiontype: String,
+  action: { type: String, default: ''},
+  output: String,
+  error: Boolean,
+  date: { type: Date, default: Date.now }
 });
 
-UserSchema.plugin(passportLocalMongoose);
-
-module.exports = mongoose.model('Log', UserSchema, 'logs');
+module.exports = mongoose.model('Log', LogSchema, 'logs');
