@@ -540,7 +540,7 @@ var HistoryGroups = React.createClass({
           </div>
           <StatusList data={group.hosts} />
         </div>
-      )
+      );
     });
     return (
       <div className='component'>

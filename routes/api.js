@@ -18,7 +18,7 @@ router.post('/hosts', function(req, res) {
     host: host.host,
     hostname: host.hostname,
     hostgroup: host.hostgroup,
-    username: host.username,
+    username: host.username || 'root',
     password: host.password
   }, function(err, host) {
     if (err) console.log(err);
