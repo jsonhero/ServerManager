@@ -1,5 +1,9 @@
 var host_queue = [];
 
+$('#log-close').on('click', function() {
+  $('.log-layover').hide();
+});
+
 //************************* MAIN PAGE **************************
 
 var ServerBox = React.createClass({
@@ -49,7 +53,7 @@ var ServerBox = React.createClass({
           </div>
           <ServerList data={this.state.data} />
           <div className='servers-comp-footer'>
-            <span className='glyphicon glyphicon-plus'></span> Add Server
+            <a href='/manager'><span className='glyphicon glyphicon-plus'></span> Add Server</a>
           </div>
         </div>
       </div>
@@ -304,16 +308,66 @@ var TableRow = React.createClass({
   }
 });
 
-//************************* ACTION MODEL **************************
+//************************* ACTION SELECTOR **************************
+
+var ActionSelector = React.createClass({
+  getInitialState: function() {
+    return { component: {}}
+  },
+  componentDidMount: function() {
+    var self = this;
+    window.addEventListener('testertest', function (e) {
+      self.setState({component: e.detail});
+    });
+  },
+  handleChangeAction: function(e) {
+    var value = e.target.value;
+    if (value == 'execute') {
+      this.state.component.setState({data: {}, action: value});
+    } else if (value == 'test') {
+      this.state.component.setState({action: value});
+    }
+  },
+  render: function() {
+    return (
+      <div className='action-comp'>
+        <div className='action-comp-wrapper'>
+          <h4>Select an Action:</h4>
+          <select onChange={this.handleChangeAction} className='form-control'>
+            <option value='execute'>
+              Execute Command
+            </option>
+            <option value='test'>
+              Test Command
+            </option>
+          </select>
+        </div>
+      </div>
+    )
+  }
+});
+
+//************************* ACTION EXECUTOR **************************
 
 var ActionBox = React.createClass({
   getInitialState: function() {
-    return {data: {}, url: ''};
+    return {data: {}, url: '', action: ''};
+  },
+  componentDidMount: function() {
+    var evt = new CustomEvent('testertest', { detail: this });
+    window.dispatchEvent(evt);
   },
   setParentState: function(url, data) {
     this.setState({data: data, url: url});
   },
   render: function() {
+    var actionType = this.state.action;
+    var action;
+    if (actionType == 'execute' || actionType == '') {
+      action = <ActionCommand data={this.state.data} setParentState={this.setParentState}/>;
+    } else if (actionType == 'folder') {
+      action = <ActionTest data={this.state.data} setParentState={this.setParentState}/>;
+    }
     return (
     <div className='components'>
       <div className='component-header'>
@@ -323,7 +377,7 @@ var ActionBox = React.createClass({
       </div>
       <div className='component-body'>
         <div className='comp-body-wrap'>
-          <ActionBody data={this.state.data} setParentState={this.setParentState}/>
+          {action}
         </div>
       </div>
       <div className='component-footer'>
@@ -334,7 +388,7 @@ var ActionBox = React.createClass({
   }
 });
 
-var ActionBody = React.createClass({
+var ActionCommand = React.createClass({
   getInitialState: function() {
     return {url: '/api/action/command/', data: { command: ''}};
   },
@@ -353,6 +407,30 @@ var ActionBody = React.createClass({
       <div className="input-group">
         <span className="input-group-addon" id="basic-addon1">Command</span>
         <input onChange={this.handleCommandChange} value={this.props.data.command} type="text" className="form-control" placeholder="ls -l" aria-describedby="basic-addon1"/>
+      </div>
+    );
+  }
+});
+
+var ActionTest = React.createClass({
+  getInitialState: function() {
+    return {url: '/api/action/command/', data: { command: ''}};
+  },
+  handleCommandChange: function(e) {
+    var command = e.target.value;
+    this.state.data.command = command;
+
+    this.props.setParentState(this.state.url, this.state.data)
+  },
+  render: function() {
+    var commandValue = '';
+    if (this.props.data.hasOwnProperty('command')) {
+      commandValue = this.props.data.command;
+    }
+    return (
+      <div className="input-group">
+        <span className="input-group-addon" id="basic-addon1">tet</span>
+        <input onChange={this.handleCommandChange} value={this.props.data.command} type="text" className="form-control" placeholder="this is the tset" aria-describedby="basic-addon1"/>
       </div>
     );
   }
@@ -442,13 +520,12 @@ var StatusList = React.createClass({
 });
 
 var StatusRow = React.createClass({
-  handleLogHoverOn: function(e) {
-    e.stopPropagation();
-    e.target.lastChild.style.display = "block";
-  },
-  handleLogHoverOut: function(e) {
-    e.stopPropagation();
-    e.target.lastChild.style.display = "none";
+  handleLogClick: function(e) {
+    $('#log-output').text(this.props.data.output);
+    $('#log-server').text(this.props.data.hostname + ' Output');
+    $('#log-date').text('Date: ' + moment(this.props.data.date).format("MMMM Do YYYY, h:mm a"));
+    $('#log-cmd').text(this.props.data.actiontype + ": " + this.props.data.action);
+    $('.log-layover').show();
   },
   render: function() {
     var status = 'success';
@@ -467,9 +544,8 @@ var StatusRow = React.createClass({
         <td>
           {moment(this.props.data.date).format("MMMM Do YYYY, h:mm a")}
         </td>
-        <td className="log" onMouseOut={this.handleLogHoverOut} onMouseOver={this.handleLogHoverOn}>
+        <td onClick={this.handleLogClick}>
           <div className='server-log'>Log</div>
-          <div className='log-container'><span className='server-output'><div className="log">{this.props.data.output}</div></span></div>
         </td>
       </tr>
     )
@@ -558,6 +634,9 @@ if (window.location.pathname == '/') {
   ReactDOM.render(
     <ServerBox url='/api/hosts' />,
     document.getElementById('servers'))
+  ReactDOM.render(
+    <ActionSelector />,
+    document.getElementById('action-selector'))
   ReactDOM.render(
     <ActionBox url='/api/hosts' />,
     document.getElementById('action'))

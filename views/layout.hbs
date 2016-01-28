@@ -9,6 +9,7 @@
     <link rel='stylesheet' href='/stylesheets/style.css'/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.6/react-dom.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/flux/2.1.1/Flux.min.js'></script>
     <!-- <script src="https://npmcdn.com/react-router/umd/ReactRouter.min.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
@@ -56,6 +57,25 @@
       </div>
     </header>
     {{{body}}}
+      <div class='log-layover'>
+        <div class='log-wrap'>
+          <div class='log-header'>
+            <h3 id='log-server'>Server Output</h3>
+            <div class='pull-left' id='log-cmd'></div> <div id='log-date' class='pull-right'></div>
+          </div>
+          <div class='log-handleoverflow'>
+            <div class='log-text-container'>
+              <div class='log-text' id='log-output'>
+              </div>
+            </div>
+          </div>
+          <div class='log-footer'>
+            <div class='button-wrap'>
+              <button class='btn btn-primary' id='log-close'>Close Log</button>
+            </div>
+          </div>
+        </div>
+      </div>
     <script src='/javascripts/app.js' type="text/babel"></script>
   </body>
 </html>
