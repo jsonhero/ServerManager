@@ -491,7 +491,7 @@ var StatusBox = React.createClass({
       <div className='component'>
         <div className='component-header'>
           <div className='component-name'>
-            Server Status
+            Server History <span> (Last 10 Minutes)   </span>
           </div>
         </div>
           <StatusList data={this.state.data}/>
