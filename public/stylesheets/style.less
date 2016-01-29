@@ -13,25 +13,32 @@ a {
   color: #00B7FF;
 }
 
+.input-group {
+  margin-bottom: 10px;
+}
+
+.server-log:hover {
+  text-decoration: underline;
+}
 
 .log-layover {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: none;
   z-index: 10;
-  margin: auto;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
   width: 50%;
-  height: 300px;
-  position: absolute;
   background: white;
-  box-shadow: 1px 1px 3px rgb(148, 148, 148);
+  box-shadow: 1px 1px 10px 2px rgb(148, 148, 148);
   color: black;
 }
 
 .log-text {
+  color: white;
+  white-space: pre;
   padding: 7px;
+  font-family: 'Source Code Pro', ;
 }
 
 .log-header {
@@ -40,14 +47,14 @@ a {
 
 .log-handleoverflow {
   margin-top: 28px;
-  height: 200px;
-  overflow: hidden;
+  max-height: 500px;
+  background: rgb(42, 42, 42);
+  border: 1px solid rgb(41, 116, 195);
+  overflow: scroll;
   width: 100%;
 }
 
 .log-text-container {
-  background: rgb(228, 228, 228);
-  border: 1px solid rgb(210, 206, 210);
   width: 100%;
 }
 
@@ -58,9 +65,8 @@ a {
 }
 
 .log-footer {
+  margin-top: 10px;
   width: 100%;
-  position: absolute;
-  bottom: 0;
 }
 
 #log-close {

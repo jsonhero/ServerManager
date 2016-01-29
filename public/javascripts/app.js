@@ -20,7 +20,6 @@ var ServerBox = React.createClass({
         this.setState({data: data});
       }.bind(this),
       error: function(err) {
-        console.log(this.props.url, err);
       }.bind(this)
     });
   },
@@ -146,7 +145,6 @@ var ServerItem = React.createClass({
   }
 });
 
-
 //************************* MANAGER PAGE **************************
 
 var ManagerBox = React.createClass({
@@ -157,7 +155,6 @@ var ManagerBox = React.createClass({
     var hosts = this.state.data;
     var newHosts = hosts.concat([host])
     this.setState({ data: newHosts });
-    console.log('ADDING HOST', host);
     $.ajax({
       url: '/api/hosts',
       type: 'POST',
@@ -222,7 +219,6 @@ var ManagerForm = React.createClass({
     this.setState({host: e.target.value});
   },
   handleSubmit: function(e) {
-    console.log('making a sbmit!');
     e.preventDefault();
     var host = this.state.hostname.trim();
     var group = this.state.hostgroup.trim();
@@ -316,17 +312,13 @@ var ActionSelector = React.createClass({
   },
   componentDidMount: function() {
     var self = this;
-    window.addEventListener('testertest', function (e) {
+    window.addEventListener('actionMount', function (e) {
       self.setState({component: e.detail});
     });
   },
   handleChangeAction: function(e) {
     var value = e.target.value;
-    if (value == 'execute') {
-      this.state.component.setState({data: {}, action: value});
-    } else if (value == 'test') {
-      this.state.component.setState({action: value});
-    }
+    this.state.component.setState({data: {}, action: value});
   },
   render: function() {
     return (
@@ -337,13 +329,16 @@ var ActionSelector = React.createClass({
             <option value='execute'>
               Execute Command
             </option>
-            <option value='test'>
-              Test Command
+            <option value='put'>
+              Put
+            </option>
+            <option value='folder'>
+              Find Folders
             </option>
           </select>
         </div>
       </div>
-    )
+    );
   }
 });
 
@@ -354,11 +349,13 @@ var ActionBox = React.createClass({
     return {data: {}, url: '', action: ''};
   },
   componentDidMount: function() {
-    var evt = new CustomEvent('testertest', { detail: this });
+    var evt = new CustomEvent('actionMount', { detail: this });
     window.dispatchEvent(evt);
   },
   setParentState: function(url, data) {
-    this.setState({data: data, url: url});
+    this.setState({data: data, url: url}, function() {
+      //console.log(this.state);
+    });
   },
   render: function() {
     var actionType = this.state.action;
@@ -366,7 +363,9 @@ var ActionBox = React.createClass({
     if (actionType == 'execute' || actionType == '') {
       action = <ActionCommand data={this.state.data} setParentState={this.setParentState}/>;
     } else if (actionType == 'folder') {
-      action = <ActionTest data={this.state.data} setParentState={this.setParentState}/>;
+      action = <ActionFindFolder data={this.state.data} setParentState={this.setParentState}/>;
+    } else if (actionType == 'put') {
+      action = <ActionPut data={this.state.data} setParentState={this.setParentState}/>;
     }
     return (
     <div className='components'>
@@ -390,19 +389,17 @@ var ActionBox = React.createClass({
 
 var ActionCommand = React.createClass({
   getInitialState: function() {
-    return {url: '/api/action/command/', data: { command: ''}};
+    return {url: '/api/action/command/', data: { type: 'command', command: ''}};
   },
   handleCommandChange: function(e) {
     var command = e.target.value;
-    this.state.data.command = command;
-
-    this.props.setParentState(this.state.url, this.state.data)
+    this.setState({
+      data: { command: command}
+    }, function() {
+      this.props.setParentState(this.state.url, this.state.data)
+    });
   },
   render: function() {
-    var commandValue = '';
-    if (this.props.data.hasOwnProperty('command')) {
-      commandValue = this.props.data.command;
-    }
     return (
       <div className="input-group">
         <span className="input-group-addon" id="basic-addon1">Command</span>
@@ -412,25 +409,86 @@ var ActionCommand = React.createClass({
   }
 });
 
-var ActionTest = React.createClass({
+var ActionPut = React.createClass({
   getInitialState: function() {
-    return {url: '/api/action/command/', data: { command: ''}};
+    return {url: '/api/action/put/', data: { type: 'put', localpath: '', remotepath: ''}};
   },
-  handleCommandChange: function(e) {
-    var command = e.target.value;
-    this.state.data.command = command;
-
-    this.props.setParentState(this.state.url, this.state.data)
+  handleLocalPathChange: function(e) {
+    var localpath = e.target.value;
+    this.setState({
+      data: { localpath: localpath, remotepath: this.state.data.remotepath}
+    }, function() {
+      console.log('LOCAL', this.state.data);
+      this.props.setParentState(this.state.url, this.state.data)
+    });
+  },
+  handleRemotePathChange: function(e) {
+    var remotepath = e.target.value;
+    this.setState({
+      data: { remotepath: remotepath, localpath: this.state.data.localpath}
+    }, function() {
+      console.log('REMOTE', this.state.data);
+      this.props.setParentState(this.state.url, this.state.data)
+    });
   },
   render: function() {
-    var commandValue = '';
-    if (this.props.data.hasOwnProperty('command')) {
-      commandValue = this.props.data.command;
-    }
     return (
-      <div className="input-group">
-        <span className="input-group-addon" id="basic-addon1">tet</span>
-        <input onChange={this.handleCommandChange} value={this.props.data.command} type="text" className="form-control" placeholder="this is the tset" aria-describedby="basic-addon1"/>
+      <div className='action-input'>
+        <div className="input-group">
+          <span className="input-group-addon" id="basic-addon1">Local Path:</span>
+          <input onChange={this.handleLocalPathChange} type="text" className="form-control" placeholder="local..." aria-describedby="basic-addon1"/>
+        </div>
+        <div className="input-group">
+          <span className="input-group-addon" id="basic-addon1">Remote Path:</span>
+          <input onChange={this.handleRemotePathChange} type="text" className="form-control" placeholder="remote..." aria-describedby="basic-addon1"/>
+        </div>
+      </div>
+    );
+  }
+});
+
+var ActionFindFolder = React.createClass({
+  getInitialState: function() {
+    return {url: '/api/action/findfolder/', data: { foldername: '', pathname: ''}};
+  },
+  handleFolderNameChange: function(e) {
+    var foldername = e.target.value;
+    this.setState({
+      data: { foldername: foldername}
+    }, function() {
+      this.props.setParentState(this.state.url, this.state.data)
+    });
+  },
+  handlePathNameChange: function(e) {
+    var pathname = e.target.value;
+    this.setState({
+      data: { pathname: pathname}
+    }, function() {
+      this.props.setParentState(this.state.url, this.state.data)
+    });
+  },
+  handleFolderActionChange: function(e) {
+
+  },
+  render: function() {
+
+    return (
+      <div className='action-input'>
+        <div className="input-group">
+          <span className="input-group-addon" id="basic-addon1">Action Type:</span>
+          <select aria-describedby="basic-addon1">
+            <option value='list'>list</option>
+            <option value='delete'>delete</option>
+          </select>
+        </div>
+        <div className="input-group">
+          <span className="input-group-addon" id="basic-addon1">Path:</span>
+          <input onChange={this.handlePathNameChange} value={this.props.data.pathname} type="text" className="form-control" placeholder="/path/folder" aria-describedby="basic-addon1"/>
+        </div>
+        <div className="input-group">
+          <span className="input-group-addon" id="basic-addon1">Folder Name:</span>
+          <input onChange={this.handleFolderNameChange} value={this.props.data.foldername} type="text" className="form-control" placeholder="kittens" aria-describedby="basic-addon1"/>
+        </div>
       </div>
     );
   }
@@ -440,7 +498,12 @@ var ActionFooter = React.createClass({
   handleExecute: function(e) {
     var data = this.props.data.data;
     data.servers = host_queue;
-    console.log('Sending over ', data.servers);
+
+    if (host_queue.length < 1) {
+      alert('Enter a server!');
+      return;
+    }
+
     $.ajax({
       url: this.props.data.url,
       type: 'POST',
@@ -522,8 +585,9 @@ var StatusList = React.createClass({
 var StatusRow = React.createClass({
   handleLogClick: function(e) {
     $('#log-output').text(this.props.data.output);
+    console.log(this.props.data.output);
     $('#log-server').text(this.props.data.hostname + ' Output');
-    $('#log-date').text('Date: ' + moment(this.props.data.date).format("MMMM Do YYYY, h:mm a"));
+    $('#log-date').text(moment(this.props.data.date).format("MMMM Do YYYY, h:mm a"));
     $('#log-cmd').text(this.props.data.actiontype + ": " + this.props.data.action);
     $('.log-layover').show();
   },
@@ -550,7 +614,7 @@ var StatusRow = React.createClass({
       </tr>
     )
   }
-})
+});
 
 //************************* History **************************
 
@@ -589,7 +653,6 @@ var HistoryBox = React.createClass({
     keys.forEach(function(key) {
       hostgroups.push(groups[key]);
     });
-    console.log(hostgroups);
     return hostgroups;
   },
   render: function() {
@@ -628,7 +691,6 @@ var HistoryGroups = React.createClass({
 
 //************************* ROUTER **************************
 
-console.log(window.location.pathname);
 //crappy temporary routing system
 if (window.location.pathname == '/') {
   ReactDOM.render(
@@ -641,7 +703,7 @@ if (window.location.pathname == '/') {
     <ActionBox url='/api/hosts' />,
     document.getElementById('action'))
   ReactDOM.render(
-    <StatusBox url='/api/action/history' pollInterval={2000}/>,
+    <StatusBox url='/api/action/history' pollInterval={500}/>,
     document.getElementById('status'))
 } else if (window.location.pathname == '/manager') {
   ReactDOM.render(

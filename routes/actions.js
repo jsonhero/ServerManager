@@ -5,67 +5,31 @@ var Hosts = require('../models/Host');
 var SSHPool = require('../helpers/SSHLib')
 var fs = require('fs');
 var moment = require('moment');
+var actions = require('../helpers/actions');
 
+var script = [];
 
 
 router.post('/command', function(req, res) {
   var command = req.body.command.trim();
   var servers = req.body['servers[]'];
+  var username = req.session.user.username;
 
+  actions.command(servers, command, username);
+});
 
-  Hosts.find({ 'hostname': { $in: servers }}, function(err, hosts) {
-    var ConnectionPool = new SSHPool(hosts);
-    var callback = function(conn) {
-      var output = [];
-      var error = false;
-      conn.exec(command, function(err, stream) {
+router.post('/folder', function(req, res) {
 
-        stream.on('data', function(data) {
-          output.push(data.toString());
-        });
+});
 
-        stream.stderr.on('data', function(data) {
-          error = true;
-          output.push("ERROR: " + data.toString());
-        });
+router.post('/put', function(req, res) {
+  console.log(req.body, 'PUT');
+  var localpath = req.body.localpath;
+  var remotepath = req.body.remotepath;
+  var username = req.session.user.username;
+  var servers = req.body['servers[]'];
 
-        stream.on('close', function() {
-          conn.end();
-        });
-      });
-
-      conn.on('error', function(err) {
-        console.log("CONNECTION ERROR " + conn.config.host, err);
-      });
-
-      conn.on('close', function() {
-        Hosts.findOne({host: conn.config.host}, function(err, host) {
-          Log.create({
-            user: req.session.user.username,
-            hostname: host.hostname,
-            hostgroup: host.hostgroup,
-            actiontype: 'command',
-            action: command,
-            output: output.join("\n"),
-            error: error
-          }, function(err, log) {
-            if (err) console.log(err);
-          });
-        });
-      });
-    };
-    var closeback = function() {
-      console.log("Removing listeners");
-      ConnectionPool.removeListener('ready', callback);
-      ConnectionPool.removeListener('close', closeback);
-    };
-
-    ConnectionPool.on('ready', callback);
-    ConnectionPool.on('close', closeback);
-
-    ConnectionPool.connect();
-  });
-
+  actions.put(servers, localpath, remotepath, username);
 });
 
 router.get('/history', function(req, res) {

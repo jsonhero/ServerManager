@@ -149,7 +149,7 @@ var Host = function(options) {
   this.port = options.port;
   this.username = options.username;
   this.password = options.password;
-  
+
 };
 
 Host.prototype.connect = function(SSHPool) {
