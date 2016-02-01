@@ -418,7 +418,6 @@ var ActionPut = React.createClass({
     this.setState({
       data: { localpath: localpath, remotepath: this.state.data.remotepath}
     }, function() {
-      console.log('LOCAL', this.state.data);
       this.props.setParentState(this.state.url, this.state.data)
     });
   },
@@ -427,7 +426,6 @@ var ActionPut = React.createClass({
     this.setState({
       data: { remotepath: remotepath, localpath: this.state.data.localpath}
     }, function() {
-      console.log('REMOTE', this.state.data);
       this.props.setParentState(this.state.url, this.state.data)
     });
   },
@@ -689,6 +687,44 @@ var HistoryGroups = React.createClass({
   }
 });
 
+//************************* SCRIPT PAGE **************************
+
+var ScriptSelector = React.createClass({
+  getInitialState: function() {
+    return { component: {}}
+  },
+  componentDidMount: function() {
+    // var self = this;
+    // window.addEventListener('actionMount', function (e) {
+    //   self.setState({component: e.detail});
+    // });
+  },
+  handleChangeAction: function(e) {
+    // var value = e.target.value;
+    // this.state.component.setState({data: {}, action: value});
+  },
+  render: function() {
+    return (
+      <div className='action-comp'>
+        <div className='action-comp-wrapper'>
+          <h4>Select a Script:</h4>
+          <select onChange={this.handleChangeAction} className='form-control'>
+            <option value='execute'>
+              Execute Command
+            </option>
+            <option value='put'>
+              Put
+            </option>
+            <option value='folder'>
+              Find Folders
+            </option>
+          </select>
+        </div>
+      </div>
+    );
+  }
+});
+
 //************************* ROUTER **************************
 
 //crappy temporary routing system
@@ -713,4 +749,14 @@ if (window.location.pathname == '/') {
   ReactDOM.render(
     <HistoryBox url='/api/action/allhistory' />,
     document.getElementById('history'))
+} else if (window.location.pathname == '/scriptor') {
+  ReactDOM.render(
+    <ScriptSelector />,
+    document.getElementById('select-script'))
+  ReactDOM.render(
+    <ActionSelector />,
+    document.getElementById('action-selector'))
+  ReactDOM.render(
+    <ActionBox url='/api/hosts' />,
+    document.getElementById('action'))
 }

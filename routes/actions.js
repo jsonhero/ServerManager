@@ -36,6 +36,7 @@ router.get('/history', function(req, res) {
   Log.find({ date: {
     $gte: moment().subtract(10, 'minutes')
   }}, function(err, logs) {
+    
     res.json(logs);
   });
 });
