@@ -3,6 +3,7 @@ var router = express.Router();
 var Host = require('../models/Host');
 var fs = require('fs');
 var actions = require('./actions');
+var Model = require('../models/Script');
 
 router.use('/action', actions);
 
@@ -27,6 +28,47 @@ router.post('/hosts', function(req, res) {
 
 router.delete('/hosts', function(req, res) {
   Host.remove({ hostname: req.body.hostname}, function(err, removed) {
+  });
+});
+
+router.get('/scripts', function(req, res) {
+  Model.Script.find({}, function(err, scripts) {
+    res.json(scripts);
+  });
+});
+
+router.get('/script/:name', function(req, res) {
+  console.log('calling dat izzle!');
+  var scriptName = req.params.name;
+  Model.Script.findOne({name: scriptName}, function(err, script) {
+    res.json(script);
+  });
+});
+
+router.delete('/script', function(req, res) {
+  Model.Script.remove({name: req.body.name}, function(err, removed) {
+  });
+});
+
+router.post('/script', function(req, res) {
+  Model.Script.create({
+    name: req.body.name
+  }, function(err, script) {
+    if (err) throw err;
+
+  });
+});
+
+router.post('/script/action', function(req, res) {
+  console.log(req.body.script, 'SCRIPT?');
+  var action = {
+    type: req.body.type,
+    info: req.body.command
+  }
+  Model.Script.find({name: req.body.script}, function(err, script) {
+    // script.actions.push(action);
+    // script.save();
+    console.log('dat script', script);
   });
 });
 

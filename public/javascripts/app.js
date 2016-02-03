@@ -1,4 +1,5 @@
 var host_queue = [];
+var currentScript = '';
 
 $('#log-close').on('click', function() {
   $('.log-layover').hide();
@@ -359,7 +360,8 @@ var ActionBox = React.createClass({
   },
   render: function() {
     var actionType = this.state.action;
-    var action;
+    var action,
+        executor = <ActionFooter setParentState={this.setParentState} data={this.state} />
     if (actionType == 'execute' || actionType == '') {
       action = <ActionCommand data={this.state.data} setParentState={this.setParentState}/>;
     } else if (actionType == 'folder') {
@@ -367,6 +369,11 @@ var ActionBox = React.createClass({
     } else if (actionType == 'put') {
       action = <ActionPut data={this.state.data} setParentState={this.setParentState}/>;
     }
+
+    if (window.location.pathname == '/scriptor') {
+      executor = <ScriptFooter setParentState={this.setParentState} data={this.state} />
+    }
+
     return (
     <div className='components'>
       <div className='component-header'>
@@ -380,7 +387,7 @@ var ActionBox = React.createClass({
         </div>
       </div>
       <div className='component-footer'>
-        <ActionFooter setParentState={this.setParentState} data={this.state} />
+        {executor}
       </div>
     </div>
   );
@@ -691,35 +698,229 @@ var HistoryGroups = React.createClass({
 
 var ScriptSelector = React.createClass({
   getInitialState: function() {
-    return { component: {}}
+    return { data: [], name: '', current: ''};
   },
   componentDidMount: function() {
-    // var self = this;
-    // window.addEventListener('actionMount', function (e) {
-    //   self.setState({component: e.detail});
-    // });
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function() {
+      }
+    });
   },
   handleChangeAction: function(e) {
-    // var value = e.target.value;
-    // this.state.component.setState({data: {}, action: value});
+    currentScript = current;
+    var current = e.target.value;
+    this.setState({current: current});
+  },
+  handleCreateScript: function(e) {
+    var name = this.state.name;
+    if (name.length < 1) {
+      alert('Please enter a valid script name!');
+      return;
+    }
+
+    $.ajax({
+      dataType: 'json',
+      type: 'POST',
+      data: {name: name},
+      url: '/api/script',
+      success: function() {
+
+      },
+      error: function() {
+
+      }
+    });
+  },
+  handleNameChange: function(e) {
+    var name = e.target.value;
+    this.setState({name: name});
+  },
+  handleDeleteScript: function(e) {
+    var name = this.state.current;
+    console.log("Deleting", name);
+    $.ajax({
+      dataType: 'json',
+      data: {name: name},
+      type: 'DELETE',
+      url: '/api/script/',
+      success: function() {
+
+      },
+      error: function() {
+
+      }
+    });
   },
   render: function() {
+    var options = this.state.data.map(function(option) {
+      return (
+        <option key={option.name} value={option.name}> {option.name} </option>
+      )
+    });
     return (
       <div className='action-comp'>
         <div className='action-comp-wrapper'>
-          <h4>Select a Script:</h4>
-          <select onChange={this.handleChangeAction} className='form-control'>
-            <option value='execute'>
-              Execute Command
-            </option>
-            <option value='put'>
-              Put
-            </option>
-            <option value='folder'>
-              Find Folders
-            </option>
+          <h4>Edit Existing Script:</h4>
+          <select defaultValue='' onChange={this.handleChangeAction} className='form-control'>
+            <option disabled>Select a Script</option>
+            {options}
           </select>
+          <div className='button-wrap'>
+            <WhatTheFuck name={this.state.current}/>
+            <button onClick={this.handleDeleteScript} className='btn btn-danger'>Delete</button>
+          </div>
         </div>
+        <div className='component-footer'>
+          <div className="input-group">
+            <span className="input-group-addon" id="basic-addon1">Script Name</span>
+            <input onChange={this.handleNameChange} type="text" className="form-control" placeholder="Name..." aria-describedby="basic-addon1"/>
+          </div>
+          <div className='button-wrap'>
+            <button onClick={this.handleCreateScript} id='create-script' className='btn btn-primary'>Create New Script</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+});
+
+var WhatTheFuck = React.createClass({
+  handleEditScript: function(e) {
+    if (this.props.name) {
+      var poop = document.getElementById('select-script');
+      ReactDOM.unmountComponentAtNode(poop);
+
+      ReactDOM.render(
+        <ScriptBox name={this.props.name}/>,
+        document.getElementById('script-maker'))
+      ReactDOM.render(
+        <ActionSelector />,
+        document.getElementById('action-selector'))
+      ReactDOM.render(
+        <ActionBox url='/api/hosts' />,
+        document.getElementById('action'))
+    }
+  },
+  render: function() {
+    return (
+      <button onClick={this.handleEditScript} className='btn btn-warning'>Edit</button>
+    );
+  }
+});
+
+var ScriptBox = React.createClass({
+  getInitialState: function() {
+    return {data: { actions: []}};
+  },
+  componentDidMount: function() {
+    $.ajax({
+      url: '/api/script/' + this.props.name,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({data: data});
+      },
+      error: function() {
+
+      }
+    })
+  },
+  render: function() {
+    return (
+      <div className='component'>
+        <div className='component-header'>
+          <div className='component-name'>
+            {this.props.name}
+          </div>
+        </div>
+        <div className='component-body'>
+          <div className='comp-body-wrap'>
+            <div className="input-group">
+              <span className="input-group-addon" id="basic-addon1">Script Name</span>
+              <input type="text" className="form-control" placeholder="Name..." aria-describedby="basic-addon1"/>
+            </div>
+            <ScriptTable data={this.state.data}/>
+          </div>
+        </div>
+      </div>
+    );
+  }
+});
+
+var ScriptTable = React.createClass({
+  render: function() {
+    console.log(this.props.data);
+    var rows = this.props.data.actions.map(function(action) {
+      return (
+        <ScriptRow action={action}/>
+      )
+    });
+    return (
+      <table className='table table-striped'>
+        <thead>
+          <tr>
+            <th>
+              Action
+            </th>
+            <th>
+              Info
+            </th>
+            <th>
+              Edit
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows}
+        </tbody>
+      </table>
+    );
+  }
+});
+
+var ScriptRow = React.createClass({
+  render: function() {
+    return (
+      <tr>
+        <td>{this.props.action.type}</td>
+        <td>{this.props.action.info}</td>
+      </tr>
+    )
+  }
+})
+
+var ScriptFooter = React.createClass({
+  handleExecute: function(e) {
+    var data = this.props.data.data;
+    data.script = currentScript;
+
+    var evt = new CustomEvent('scriptAdd', { detail: data });
+    window.dispatchEvent(evt);
+
+    $.ajax({
+      url: '/api/script/action',
+      type: 'POST',
+      dataType: 'json',
+      data: data,
+      success: function() {
+
+      },
+      error: function() {
+
+      }
+    })
+    this.props.setParentState({}, '');
+  },
+  render: function() {
+    return (
+      <div className='button-wrap'>
+        <button onClick={this.handleExecute} id='execute-action' className='btn btn-success'>Add to Script</button>
       </div>
     );
   }
@@ -751,12 +952,6 @@ if (window.location.pathname == '/') {
     document.getElementById('history'))
 } else if (window.location.pathname == '/scriptor') {
   ReactDOM.render(
-    <ScriptSelector />,
+    <ScriptSelector url='/api/scripts'/>,
     document.getElementById('select-script'))
-  ReactDOM.render(
-    <ActionSelector />,
-    document.getElementById('action-selector'))
-  ReactDOM.render(
-    <ActionBox url='/api/hosts' />,
-    document.getElementById('action'))
 }
