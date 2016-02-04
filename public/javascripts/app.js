@@ -396,14 +396,14 @@ var ActionBox = React.createClass({
 
 var ActionCommand = React.createClass({
   getInitialState: function() {
-    return {url: '/api/action/command/', data: { type: 'command', command: ''}};
+    return {url: '/api/action/command/', type: 'command', data: {command: ''}};
   },
   handleCommandChange: function(e) {
     var command = e.target.value;
     this.setState({
-      data: { command: command}
+      data: { command: command, type: this.state.type, info: command}
     }, function() {
-      this.props.setParentState(this.state.url, this.state.data)
+      this.props.setParentState(this.state.url, this.state.data);
     });
   },
   render: function() {
@@ -418,20 +418,26 @@ var ActionCommand = React.createClass({
 
 var ActionPut = React.createClass({
   getInitialState: function() {
-    return {url: '/api/action/put/', data: { type: 'put', localpath: '', remotepath: ''}};
+    return {
+    url: '/api/action/put/',
+    type: 'put',
+    info: '',
+    data: {localpath: '', remotepath: ''}};
   },
   handleLocalPathChange: function(e) {
+    var info = 'Local: ' + this.state.data.localpath + ' Remote: ' + this.state.data.remotepath;
     var localpath = e.target.value;
     this.setState({
-      data: { localpath: localpath, remotepath: this.state.data.remotepath}
+      data: { localpath: localpath, remotepath: this.state.data.remotepath, type: this.state.type, info: info}
     }, function() {
       this.props.setParentState(this.state.url, this.state.data)
     });
   },
   handleRemotePathChange: function(e) {
+    var info = 'Local: ' + this.state.data.localpath + ' Remote: ' + this.state.data.remotepath;
     var remotepath = e.target.value;
     this.setState({
-      data: { remotepath: remotepath, localpath: this.state.data.localpath}
+      data: { localpath: this.state.data.localpath, remotepath: remotepath, type: this.state.type, info: info}
     }, function() {
       this.props.setParentState(this.state.url, this.state.data)
     });
@@ -713,8 +719,8 @@ var ScriptSelector = React.createClass({
     });
   },
   handleChangeAction: function(e) {
-    currentScript = current;
     var current = e.target.value;
+    currentScript = current;
     this.setState({current: current});
   },
   handleCreateScript: function(e) {
@@ -743,7 +749,6 @@ var ScriptSelector = React.createClass({
   },
   handleDeleteScript: function(e) {
     var name = this.state.current;
-    console.log("Deleting", name);
     $.ajax({
       dataType: 'json',
       data: {name: name},
@@ -772,7 +777,7 @@ var ScriptSelector = React.createClass({
             {options}
           </select>
           <div className='button-wrap'>
-            <WhatTheFuck name={this.state.current}/>
+            <ScriptEdit name={this.state.current}/>
             <button onClick={this.handleDeleteScript} className='btn btn-danger'>Delete</button>
           </div>
         </div>
@@ -790,12 +795,11 @@ var ScriptSelector = React.createClass({
   }
 });
 
-var WhatTheFuck = React.createClass({
+var ScriptEdit = React.createClass({
   handleEditScript: function(e) {
     if (this.props.name) {
       var poop = document.getElementById('select-script');
       ReactDOM.unmountComponentAtNode(poop);
-
       ReactDOM.render(
         <ScriptBox name={this.props.name}/>,
         document.getElementById('script-maker'))
@@ -818,34 +822,40 @@ var ScriptBox = React.createClass({
   getInitialState: function() {
     return {data: { actions: []}};
   },
-  componentDidMount: function() {
+  removeAndUpdate: function(i) {
+    this.setState(function(state) {
+      state.data.actions.splice(i, 1);
+      return {data: {actions: state.data.actions}};
+    });
+  },
+  updateBox: function() {
     $.ajax({
       url: '/api/script/' + this.props.name,
       dataType: 'json',
       cache: false,
       success: function(data) {
         this.setState({data: data});
-      },
+      }.bind(this),
       error: function() {
 
       }
-    })
+    });
+  },
+  componentDidMount: function() {
+    this.updateBox();
+    setInterval(this.updateBox, 500);
   },
   render: function() {
     return (
       <div className='component'>
         <div className='component-header'>
           <div className='component-name'>
-            {this.props.name}
+            Script: {this.props.name}
           </div>
         </div>
         <div className='component-body'>
           <div className='comp-body-wrap'>
-            <div className="input-group">
-              <span className="input-group-addon" id="basic-addon1">Script Name</span>
-              <input type="text" className="form-control" placeholder="Name..." aria-describedby="basic-addon1"/>
-            </div>
-            <ScriptTable data={this.state.data}/>
+            <ScriptTable removeAndUpdate={this.removeAndUpdate} data={this.state.data}/>
           </div>
         </div>
       </div>
@@ -855,10 +865,10 @@ var ScriptBox = React.createClass({
 
 var ScriptTable = React.createClass({
   render: function() {
-    console.log(this.props.data);
-    var rows = this.props.data.actions.map(function(action) {
+    var self = this;
+    var rows = this.props.data.actions.map(function(action, i) {
       return (
-        <ScriptRow action={action}/>
+        <ScriptRow removeAndUpdate={self.props.removeAndUpdate} index={i} action={action}/>
       )
     });
     return (
@@ -885,11 +895,27 @@ var ScriptTable = React.createClass({
 });
 
 var ScriptRow = React.createClass({
+  handleDelete: function(e) {
+    $.ajax({
+      type: 'DELETE',
+      url: '/api/script/action',
+      dataType: 'json',
+      data: {id: this.props.action._id, script: currentScript},
+      success: function() {
+
+      },
+      error: function() {
+
+      }
+    });
+    this.props.removeAndUpdate(this.props.index);
+  },
   render: function() {
     return (
-      <tr>
+      <tr id={this.props.action._id}>
         <td>{this.props.action.type}</td>
         <td>{this.props.action.info}</td>
+        <td><button data-id={this.props.action._id} onClick={this.handleDelete} className='btn btn-danger'>Delete</button></td>
       </tr>
     )
   }
@@ -899,9 +925,6 @@ var ScriptFooter = React.createClass({
   handleExecute: function(e) {
     var data = this.props.data.data;
     data.script = currentScript;
-
-    var evt = new CustomEvent('scriptAdd', { detail: data });
-    window.dispatchEvent(evt);
 
     $.ajax({
       url: '/api/script/action',

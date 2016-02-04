@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var ActionSchema = new mongoose.Schema({
   type: String,
   info: String,
+  data: {}
 });
 
 var ScriptSchema = new mongoose.Schema({

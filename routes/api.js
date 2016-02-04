@@ -38,7 +38,6 @@ router.get('/scripts', function(req, res) {
 });
 
 router.get('/script/:name', function(req, res) {
-  console.log('calling dat izzle!');
   var scriptName = req.params.name;
   Model.Script.findOne({name: scriptName}, function(err, script) {
     res.json(script);
@@ -60,15 +59,27 @@ router.post('/script', function(req, res) {
 });
 
 router.post('/script/action', function(req, res) {
-  console.log(req.body.script, 'SCRIPT?');
+  console.log(req.body);
+
   var action = {
     type: req.body.type,
-    info: req.body.command
+    info: req.body.info,
+    data: req.body
   }
-  Model.Script.find({name: req.body.script}, function(err, script) {
-    // script.actions.push(action);
-    // script.save();
-    console.log('dat script', script);
+
+  Model.Script.findOne({name: req.body.script}, function(err, script) {
+    script.actions.push(action);
+    script.save();
+  });
+});
+
+router.delete('/script/action', function(req, res) {
+  Model.Script.findOne({ name: req.body.script}, function(err, script) {
+    var children = script.actions.filter(function(action) {
+      return action._id != req.body.id;
+    });
+    script.actions = children;
+    script.save();
   });
 });
 
