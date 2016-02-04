@@ -83,4 +83,9 @@ router.delete('/script/action', function(req, res) {
   });
 });
 
+router.get('/jars', function(req, res) {
+  var contents = fs.readFileSync('jars.json', {encoding: 'utf8'});
+  res.send(contents);
+});
+
 module.exports = router;

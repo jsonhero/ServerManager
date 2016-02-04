@@ -24,7 +24,9 @@ Actions.prototype.createLog = function(options) {
   });
 };
 
-Actions.prototype.command = function(servers, command, username) {
+Actions.prototype.command = function(info, servers, username) {
+  var command = info.data.command;
+  console.log("WTFBOOM", command);
   var self = this;
   Hosts.find({ 'hostname': { $in: servers }}, function(err, hosts) {
     var ConnectionPool = new SSHPool(hosts);

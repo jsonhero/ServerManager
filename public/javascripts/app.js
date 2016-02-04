@@ -336,6 +336,9 @@ var ActionSelector = React.createClass({
             <option value='folder'>
               Find Folders
             </option>
+            <option value='jar'>
+              Update Jars
+            </option>
           </select>
         </div>
       </div>
@@ -355,19 +358,25 @@ var ActionBox = React.createClass({
   },
   setParentState: function(url, data) {
     this.setState({data: data, url: url}, function() {
-      //console.log(this.state);
     });
   },
   render: function() {
+    var name = 'Execute Command';
     var actionType = this.state.action;
     var action,
         executor = <ActionFooter setParentState={this.setParentState} data={this.state} />
     if (actionType == 'execute' || actionType == '') {
+      name = 'Execute Command';
       action = <ActionCommand data={this.state.data} setParentState={this.setParentState}/>;
     } else if (actionType == 'folder') {
+      name = 'Search for a Folder';
       action = <ActionFindFolder data={this.state.data} setParentState={this.setParentState}/>;
     } else if (actionType == 'put') {
+      name = 'Put a file';
       action = <ActionPut data={this.state.data} setParentState={this.setParentState}/>;
+    } else if (actionType == 'jar') {
+      name = 'Update a jar';
+      action = <ActionJar data={this.state.data} setParentState={this.setParentState}/>;
     }
 
     if (window.location.pathname == '/scriptor') {
@@ -378,7 +387,7 @@ var ActionBox = React.createClass({
     <div className='components'>
       <div className='component-header'>
         <div className='component-name'>
-          Execute Command
+          {name}
         </div>
       </div>
       <div className='component-body'>
@@ -396,7 +405,7 @@ var ActionBox = React.createClass({
 
 var ActionCommand = React.createClass({
   getInitialState: function() {
-    return {url: '/api/action/command/', type: 'command', data: {command: ''}};
+    return {url: '/api/action/command', type: 'command', data: {command: ''}};
   },
   handleCommandChange: function(e) {
     var command = e.target.value;
@@ -415,6 +424,53 @@ var ActionCommand = React.createClass({
     );
   }
 });
+
+var ActionJar = React.createClass({
+  getInitialState: function() {
+    return {url: '/api/action/jar', jarlist: [], type: 'jar', data: {jar: ''}};
+  },
+  componentDidMount: function() {
+    $.ajax({
+      url: '/api/jars',
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState(function(state) {
+          state.jarlist = data;
+          return state;
+        });
+      }.bind(this),
+      error: function() {
+
+      }
+    })
+  },
+  handleJarChange: function(e) {
+    var jar = e.target.value;
+    this.setState({
+      data: { jar: jar, type: this.state.type, info: 'Paste ' + jar}
+    }, function() {
+      this.props.setParentState(this.state.url, this.state.data);
+    });
+  },
+  render: function() {
+    var options = this.state.jarlist.map(function(option) {
+      return (
+        <option value={option.name}>{option.name}</option>
+      )
+    });
+    return (
+      <div className='component'>
+        <label>Select jar to update/add: </label>
+        <select onChange={this.handleJarChange} className='form-control'>
+          <option value='' disabled>- Select A Jar -</option>
+          {options}
+        </select>
+      </div>
+    );
+  }
+});
+
 
 var ActionPut = React.createClass({
   getInitialState: function() {
@@ -510,6 +566,10 @@ var ActionFooter = React.createClass({
     var data = this.props.data.data;
     data.servers = host_queue;
 
+    if (!this.props.data.url) {
+      alert("Enter valid input!");
+    }
+    // console.log(this.props.data.url, "URL", "DATA", data);
     if (host_queue.length < 1) {
       alert('Enter a server!');
       return;
@@ -949,6 +1009,71 @@ var ScriptFooter = React.createClass({
   }
 });
 
+//*************************  SCRIPTSHIT **************************
+
+var ScriptActor = React.createClass({
+  getInitialState: function() {
+    return { data: []};
+  },
+  componentDidMount: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({data: data})
+      }.bind(this),
+      error: function() {
+
+      }
+    });
+  },
+  handleScriptExecute: function(e) {
+    var ele = document.getElementById('selected-script');
+    $.ajax({
+      url: '/api/action/script',
+      type: 'POST',
+      dataType: 'json',
+      data: {script: ele.value, servers: host_queue},
+      success: function() {
+
+      },
+      error: function() {
+
+      }
+    });
+  },
+  render: function() {
+    var options = this.state.data.map(function(option) {
+      return (
+        <option value={option.name}>{option.name}</option>
+      )
+    });
+    return (
+      <div className='component'>
+        <div className='component-header'>
+          <div className='component-name'>
+            Scripts
+          </div>
+        </div>
+        <div className='component-body'>
+          <div className='comp-body-wrap'>
+            <select id='selected-script' className='form-control'>
+              {options}
+            </select>
+          </div>
+        </div>
+        <div className='component-footer'>
+          <div className='button-wrap'>
+            <button onClick={this.handleScriptExecute} id='execute-script' className='btn btn-primary'>Execute Script</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+});
+
+
 //************************* ROUTER **************************
 
 //crappy temporary routing system
@@ -957,13 +1082,16 @@ if (window.location.pathname == '/') {
     <ServerBox url='/api/hosts' />,
     document.getElementById('servers'))
   ReactDOM.render(
+    <ScriptActor url='/api/scripts'/>,
+    document.getElementById('script'))
+  ReactDOM.render(
     <ActionSelector />,
     document.getElementById('action-selector'))
   ReactDOM.render(
     <ActionBox url='/api/hosts' />,
     document.getElementById('action'))
   ReactDOM.render(
-    <StatusBox url='/api/action/history' pollInterval={500}/>,
+    <StatusBox url='/api/action/history' pollInterval={2000}/>,
     document.getElementById('status'))
 } else if (window.location.pathname == '/manager') {
   ReactDOM.render(

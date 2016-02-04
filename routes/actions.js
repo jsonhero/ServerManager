@@ -6,6 +6,7 @@ var SSHPool = require('../helpers/SSHLib')
 var fs = require('fs');
 var moment = require('moment');
 var actions = require('../helpers/actions');
+var Model = require('../models/Script');
 
 var script = [];
 
@@ -15,12 +16,19 @@ router.post('/command', function(req, res) {
   var servers = req.body['servers[]'];
   var username = req.session.user.username;
 
-  actions.command(servers, command, username);
+  var info = {data: {command: command}};
+
+  actions.command(info, servers, username);
 });
 
 router.post('/folder', function(req, res) {
 
 });
+
+router.post('/jar', function(req, res) {
+  console.log('jared it', req.body);
+});
+
 
 router.post('/put', function(req, res) {
   console.log(req.body, 'PUT');
@@ -30,6 +38,17 @@ router.post('/put', function(req, res) {
   var servers = req.body['servers[]'];
 
   actions.put(servers, localpath, remotepath, username);
+});
+
+router.post('/script', function(req, res) {
+  var username = req.session.user.username;
+  var servers = req.body['servers[]'];
+
+  Model.Script.findOne({name: req.body.script}, function(err, script) {
+    script.actions.forEach(function(action) {
+      actions[action.type](action, servers, username);
+    });
+  });
 });
 
 router.get('/history', function(req, res) {
