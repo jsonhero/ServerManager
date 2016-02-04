@@ -67,9 +67,9 @@ Client.prototype.cd = function(path, callback) {
 };
 
 Client.prototype.findFolder = function(path, folder, callback) {
-  this.currentPath = path;
   this.sftp(function(err, sftp) {
     sftp.opendir(path, function(err, buffer) {
+      console.log(path, err);
       sftp.readdir(buffer, function(err, list) {
         var foundFolder = null;
         for (var i = 0; i < list.length; i++) {
@@ -86,22 +86,19 @@ Client.prototype.findFolder = function(path, folder, callback) {
   });
 };
 
-Client.prototype.findFile = function(path, file, callback) {
-  this.currentPath = path;
-  this.sftp(function(err, sftp) {
-    sftp.opendir(path, function(err, buffer) {
-      sftp.readdir(buffer, function(err, list) {
-        var foundFile = null;
-        for (var i = 0; i < list.length; i++) {
-          var Searchfile = list[i];
-          if (Searchfile.attrs.isFile() && Searchfile.filename == file) {
-            Searchfile.path = path + Searchfile.filename;
-            foundFile = Searchfile;
-            break;
-          }
-        };
-        callback(err, foundFile)
-      });
+Client.prototype.findFile = function(sftp, path, file, callback) {
+  sftp.opendir(path, function(err, buffer) {
+    sftp.readdir(buffer, function(err, list) {
+      var foundFile = null;
+      for (var i = 0; i < list.length; i++) {
+        var Searchfile = list[i];
+        if (Searchfile.attrs.isFile() && Searchfile.filename == file) {
+          Searchfile.path = path + Searchfile.filename;
+          foundFile = Searchfile;
+          break;
+        }
+      };
+      callback(err, foundFile)
     });
   });
 };

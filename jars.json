@@ -1,26 +1,26 @@
 [
   {
     "name": "Backend",
-    "location": ""
+    "link": "http://mineswine.com/maven2/com/mineswine/api/backend/1.0/backend-1.0.jar"
   },
   {
     "name": "MCRL",
-    "location": ""
+    "link": ""
   },
   {
     "name": "GTS",
-    "location": ""
+    "link": ""
   },
   {
     "name": "LobbyPlugin",
-    "location": ""
+    "link": ""
   },
   {
     "name": "NoCheatPlus",
-    "location": ""
+    "link": ""
   },
   {
     "name": "Bridges",
-    "location": ""
+    "link": ""
   }
 ]

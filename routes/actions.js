@@ -26,7 +26,13 @@ router.post('/folder', function(req, res) {
 });
 
 router.post('/jar', function(req, res) {
-  console.log('jared it', req.body);
+  var username = req.session.user.username;
+  var servers = req.body['servers[]'];
+  var jar = req.body.jar;
+
+  var info = {data: {jar: jar}};
+
+  actions.jar(info, servers, username);
 });
 
 
@@ -38,6 +44,16 @@ router.post('/put', function(req, res) {
   var servers = req.body['servers[]'];
 
   actions.put(servers, localpath, remotepath, username);
+});
+
+router.post('/screen', function(req, res) {
+  var username = req.session.user.username;
+  var servers = req.body['servers[]'];
+  var screenAction = req.body.screenAction;
+
+  var info = {data: {screenAction: screenAction}};
+
+  actions.screen(info, servers, username);
 });
 
 router.post('/script', function(req, res) {

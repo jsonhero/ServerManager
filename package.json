@@ -19,6 +19,7 @@
     "mongo": "^0.1.0",
     "mongoose": "^4.3.7",
     "morgan": "~1.6.1",
+    "node-mysql": "^0.4.2",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^4.0.0",

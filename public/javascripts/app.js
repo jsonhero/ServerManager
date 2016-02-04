@@ -339,6 +339,9 @@ var ActionSelector = React.createClass({
             <option value='jar'>
               Update Jars
             </option>
+            <option value='screen'>
+              Screen Action
+            </option>
           </select>
         </div>
       </div>
@@ -377,6 +380,9 @@ var ActionBox = React.createClass({
     } else if (actionType == 'jar') {
       name = 'Update a jar';
       action = <ActionJar data={this.state.data} setParentState={this.setParentState}/>;
+    } else if (actionType == 'screen') {
+      name = 'Manipulate Server Screens'
+      action = <ActionScreen data={this.state.data} setParentState={this.setParentState}/>;
     }
 
     if (window.location.pathname == '/scriptor') {
@@ -465,6 +471,33 @@ var ActionJar = React.createClass({
         <select onChange={this.handleJarChange} className='form-control'>
           <option value='' disabled>- Select A Jar -</option>
           {options}
+        </select>
+      </div>
+    );
+  }
+});
+
+var ActionScreen = React.createClass({
+  getInitialState: function() {
+    return {url: '/api/action/screen', type: 'screen', data: {screenAction: ''}};
+  },
+  handleScreenChange: function(e) {
+    var action = e.target.value;
+    this.setState({
+      data: { screenAction: action, type: this.state.type, info: action + ' selected servers'}
+    }, function() {
+      this.props.setParentState(this.state.url, this.state.data);
+    });
+  },
+  render: function() {
+    return (
+      <div className='component'>
+        <label>Select a Screen Action:</label>
+        <select onChange={this.handleScreenChange} className='form-control'>
+          <option value='' disabled>- Select A Screen Action -</option>
+          <option value='start'>Start</option>
+          <option value='stop'>Stop</option>
+          <option value='restart'>Restart</option>
         </select>
       </div>
     );
@@ -564,6 +597,7 @@ var ActionFindFolder = React.createClass({
 var ActionFooter = React.createClass({
   handleExecute: function(e) {
     var data = this.props.data.data;
+    console.log("hosts", host_queue, this.props);
     data.servers = host_queue;
 
     if (!this.props.data.url) {
@@ -587,7 +621,10 @@ var ActionFooter = React.createClass({
 
       }
     })
-    this.props.setParentState({}, '');
+
+    if (data.type != 'jar' || data.type != 'screen') {
+      this.props.setParentState(this.props.data.url, {});
+    }
   },
   render: function() {
     return (
