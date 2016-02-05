@@ -3,6 +3,7 @@ logs
 *.log
 npm-debug.log*
 hosts.json
+jars.json
 # Runtime data
 pids
 *.pid

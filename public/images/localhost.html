@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://localhost:3000/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link href="./localhost_files/css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="./localhost_files/bootstrap.min.css">
+    <link rel="stylesheet" href="./localhost_files/style.css">
+    <script src="./localhost_files/react.js"></script>
+    <script src="./localhost_files/react-dom.js"></script>
+    <script src="./localhost_files/Flux.min.js"></script>
+    <!-- <script src="https://npmcdn.com/react-router/umd/ReactRouter.min.js"></script> -->
+    <script src="./localhost_files/moment.min.js"></script>
+    <script src="./localhost_files/browser.min.js"></script>
+    <script src="./localhost_files/jquery.min.js"></script>
+    <script src="./localhost_files/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-3">
+            <h2 class="logo">
+              Server Panel
+            </h2>
+          </div>
+          <div class="col-lg-4 pull-right">
+            <ul id="nav">
+              <li>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Menu
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                      <li><a href="http://localhost:3000/manager">Add Server</a></li>
+                      <li><a href="http://localhost:3000/history">Server History</a></li>
+                      <li><a href="http://localhost:3000/">Server Action</a></li>
+                      <li><a href="http://localhost:3000/scriptor">Create Script</a></li>
+                      <li><a href="http://localhost:3000/status">Server Status</a></li>
+                    </ul>
+                  </div>
+              </li>
+              <li><a href="http://localhost:3000/users/logout"><button class="btn btn-primary">Logout</button></a></li>
+              <li><div class="user">
+                billy
+              </div></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </header>
+    <div class="container clear">
+  <div class="component-float">
+
+    <div class="component-wrapper" id="action-selector"><div class="action-comp" data-reactid=".2"><div class="action-comp-wrapper" data-reactid=".2.0"><h4 data-reactid=".2.0.0">Select an Action:</h4><select class="form-control" data-reactid=".2.0.1"><option value="execute" data-reactid=".2.0.1.0">Execute Command</option><option value="put" data-reactid=".2.0.1.1">Put</option><option value="folder" data-reactid=".2.0.1.2">Find Folders</option><option value="jar" data-reactid=".2.0.1.3">Update Jars</option><option value="screen" data-reactid=".2.0.1.4">Screen Action</option></select></div></div></div>
+
+    <div class="component-wrapper" id="action"><div class="components" data-reactid=".3"><div class="component-header" data-reactid=".3.0"><div class="component-name" data-reactid=".3.0.0">Execute Command</div></div><div class="component-body" data-reactid=".3.1"><div class="comp-body-wrap" data-reactid=".3.1.0"><div class="input-group" data-reactid=".3.1.0.0"><span class="input-group-addon" id="basic-addon1" data-reactid=".3.1.0.0.0">Command</span><input type="text" class="form-control" placeholder="ls -l" aria-describedby="basic-addon1" data-reactid=".3.1.0.0.1"></div></div></div><div class="component-footer" data-reactid=".3.2"><div class="button-wrap" data-reactid=".3.2.0"><button id="execute-action" class="btn btn-warning" data-reactid=".3.2.0.0">Execute</button></div></div></div></div>
+
+    <div class="component-wrapper" id="script"><div class="component" data-reactid=".1"><div class="component-header" data-reactid=".1.0"><div class="component-name" data-reactid=".1.0.0">Scripts</div></div><div class="component-body" data-reactid=".1.1"><div class="comp-body-wrap" data-reactid=".1.1.0"><select id="selected-script" class="form-control" data-reactid=".1.1.0.0"><option value="Boop" data-reactid=".1.1.0.0.0">Boop</option></select></div></div><div class="component-footer" data-reactid=".1.2"><div class="button-wrap" data-reactid=".1.2.0"><button id="execute-script" class="btn btn-primary" data-reactid=".1.2.0.0">Execute Script</button></div></div></div></div>
+
+    <div class="component-wrapper" id="status"><div class="component" data-reactid=".4"><div class="component-header" data-reactid=".4.0"><div class="component-name" data-reactid=".4.0.0"><span data-reactid=".4.0.0.0">Server History </span><span data-reactid=".4.0.0.1"> (Last 10 Minutes)   </span></div></div><div class="component-body" data-reactid=".4.1"><table class="table table-striped" data-reactid=".4.1.0"><tbody data-reactid=".4.1.0.0"></tbody></table></div></div></div>
+
+  </div>
+
+  <div class="component-wrapper" id="servers"><div class="servers-comp" data-reactid=".0"><div class="servers-comp-wrapper" data-reactid=".0.0"><div class="servers-comp-header" data-reactid=".0.0.0"><h3 data-reactid=".0.0.0.0"> Servers </h3></div><div class="servers-comp-serverlist" data-reactid=".0.0.1"><div class="serverlist-category" data-reactid=".0.0.1.0"><div class="serverlist-header" id="sgrl" data-reactid=".0.0.1.0.0"><span data-reactid=".0.0.1.0.0.0">sgrl</span><span class="glyphicon glyphicon-remove category-remove" id="sgrl" data-reactid=".0.0.1.0.0.1"></span></div><div class="serverlist-items" data-reactid=".0.0.1.0.$sgrl"><div data-hostid="sgrl1" class="serverlist-item sgrl active-item" data-reactid=".0.0.1.0.$sgrl.$sgrl1">sgrl1</div><div data-hostid="sgrl2" class="serverlist-item sgrl" data-reactid=".0.0.1.0.$sgrl.$sgrl2">sgrl2</div><div data-hostid="sgrl3" class="serverlist-item sgrl" data-reactid=".0.0.1.0.$sgrl.$sgrl3">sgrl3</div></div></div><div class="serverlist-category" data-reactid=".0.0.1.1"><div class="serverlist-header" id="master" data-reactid=".0.0.1.1.0"><span data-reactid=".0.0.1.1.0.0">master</span><span class="glyphicon glyphicon-remove category-remove" id="master" data-reactid=".0.0.1.1.0.1"></span></div><div class="serverlist-items" data-reactid=".0.0.1.1.$master"><div data-hostid="master1" class="serverlist-item master" data-reactid=".0.0.1.1.$master.$master1">master1</div></div></div><div class="serverlist-category" data-reactid=".0.0.1.2"><div class="serverlist-header" id="Proxies" data-reactid=".0.0.1.2.0"><span data-reactid=".0.0.1.2.0.0">Proxies</span><span class="glyphicon glyphicon-remove category-remove" id="Proxies" data-reactid=".0.0.1.2.0.1"></span></div><div class="serverlist-items" data-reactid=".0.0.1.2.$Proxies"><div data-hostid="proxy1" class="serverlist-item Proxies" data-reactid=".0.0.1.2.$Proxies.$proxy1">proxy1</div><div data-hostid="proxy2" class="serverlist-item Proxies" data-reactid=".0.0.1.2.$Proxies.$proxy2">proxy2</div></div></div><div class="serverlist-category" data-reactid=".0.0.1.3"><div class="serverlist-header" id="lobbies" data-reactid=".0.0.1.3.0"><span data-reactid=".0.0.1.3.0.0">lobbies</span><span class="glyphicon glyphicon-remove category-remove" id="lobbies" data-reactid=".0.0.1.3.0.1"></span></div><div class="serverlist-items" data-reactid=".0.0.1.3.$lobbies"><div data-hostid="lobby1" class="serverlist-item lobbies" data-reactid=".0.0.1.3.$lobbies.$lobby1">lobby1</div></div></div><div class="serverlist-category" data-reactid=".0.0.1.4"><div class="serverlist-header" id="minewars" data-reactid=".0.0.1.4.0"><span data-reactid=".0.0.1.4.0.0">minewars</span><span class="glyphicon glyphicon-remove category-remove" id="minewars" data-reactid=".0.0.1.4.0.1"></span></div><div class="serverlist-items" data-reactid=".0.0.1.4.$minewars"><div data-hostid="wars1" class="serverlist-item minewars" data-reactid=".0.0.1.4.$minewars.$wars1">wars1</div><div data-hostid="wars2" class="serverlist-item minewars" data-reactid=".0.0.1.4.$minewars.$wars2">wars2</div></div></div><div class="serverlist-category" data-reactid=".0.0.1.5"><div class="serverlist-header" id="bridges" data-reactid=".0.0.1.5.0"><span data-reactid=".0.0.1.5.0.0">bridges</span><span class="glyphicon glyphicon-remove category-remove" id="bridges" data-reactid=".0.0.1.5.0.1"></span></div><div class="serverlist-items" data-reactid=".0.0.1.5.$bridges"><div data-hostid="bridges1" class="serverlist-item bridges" data-reactid=".0.0.1.5.$bridges.$bridges1">bridges1</div><div data-hostid="bridges2" class="serverlist-item bridges" data-reactid=".0.0.1.5.$bridges.$bridges2">bridges2</div></div></div><div class="serverlist-category" data-reactid=".0.0.1.6"><div class="serverlist-header" id="ga" data-reactid=".0.0.1.6.0"><span data-reactid=".0.0.1.6.0.0">ga</span><span class="glyphicon glyphicon-remove category-remove" id="ga" data-reactid=".0.0.1.6.0.1"></span></div><div class="serverlist-items" data-reactid=".0.0.1.6.$ga"><div data-hostid="gaserver" class="serverlist-item ga" data-reactid=".0.0.1.6.$ga.$gaserver">gaserver</div></div></div></div><div class="servers-comp-footer" data-reactid=".0.0.2"><a href="http://localhost:3000/manager" data-reactid=".0.0.2.0"><span class="glyphicon glyphicon-plus" data-reactid=".0.0.2.0.0"></span><span data-reactid=".0.0.2.0.1"> Add Server</span></a></div></div></div></div>
+
+</div>
+
+      <div class="log-layover">
+        <div class="log-wrap">
+          <div class="log-header">
+            <h3 id="log-server">Server Output</h3>
+            <div class="pull-left" id="log-cmd"></div> <div id="log-date" class="pull-right"></div>
+          </div>
+          <div class="log-handleoverflow">
+            <div class="log-text-container">
+              <div class="log-text" id="log-output">
+              </div>
+            </div>
+          </div>
+          <div class="log-footer">
+            <div class="button-wrap">
+              <button class="btn btn-primary" id="log-close">Close Log</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <script src="./localhost_files/app.js" type="text/babel"></script>
+  
+
+</body></html>

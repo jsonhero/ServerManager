@@ -1,1 +1,2 @@
-var mysql = require('node-mysql');
+
+var mysql = require('mysql');

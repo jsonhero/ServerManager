@@ -3,6 +3,7 @@ var router = express.Router();
 var Host = require('../models/Host');
 var fs = require('fs');
 var actions = require('./actions');
+var mysql = require('mysql');
 var Model = require('../models/Script');
 
 router.use('/action', actions);
@@ -86,6 +87,25 @@ router.delete('/script/action', function(req, res) {
 router.get('/jars', function(req, res) {
   var contents = fs.readFileSync('jars.json', {encoding: 'utf8'});
   res.send(contents);
+});
+
+router.get('/serverstatus', function(req, res) {
+  var connection = mysql.createConnection({
+    host     : process.env.MineswineDB,
+    user     : process.env.MineswineDBUser,
+    password : process.env.MineswineDBPass,
+    database : process.env.MineswineDBName
+  });
+
+  connection.connect();
+
+  connection.query('SELECT * FROM servers_status', function(err, rows, fields) {
+    if (err) throw err;
+
+    res.json(rows);
+  });
+
+  connection.end();
 });
 
 module.exports = router;

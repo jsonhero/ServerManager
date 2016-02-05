@@ -16,5 +16,9 @@ router.get('/history', function(req, res, next) {
 
 router.get('/scriptor', function(req, res, next) {
   res.render('script');
-})
+});
+
+router.get('/status', function(req, res, next) {
+  res.render('serverstatus');
+});
 module.exports = router;
