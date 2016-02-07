@@ -1139,7 +1139,6 @@ var ServerStatusBox = React.createClass({
     });
 
     var keys = Object.keys(categories);
-    console.log(keys);
     serverCats = keys.map(function(category) {
       return categories[category];
     });
@@ -1160,11 +1159,10 @@ var ServerStatusBox = React.createClass({
   },
   componentDidMount: function() {
     this.serversUpdate();
-    setInterval(this.serversUpdate, 1000);
+    setInterval(this.serversUpdate, 2000);
   },
   render: function() {
     var categories = this.state.data.map(function(category) {
-      console.log(category);
       return (
         <div className='server-category'>
           <div className='server-category-header'>
@@ -1178,9 +1176,17 @@ var ServerStatusBox = React.createClass({
         </div>
       )
     });
+    var totalPlayerCount = this.state.data.reduce(function(count, category) {
+      return count + category.playerCount;
+    }, 0);
 
     return (
       <div className='component'>
+        <div className='playerCount-container'>
+          <div className='playerCount'>
+            Total Players: {totalPlayerCount}
+          </div>
+        </div>
         {categories}
       </div>
     )
@@ -1203,16 +1209,30 @@ var StatusServers = React.createClass({
 });
 
 var StatusServer = React.createClass({
+  componentDidMount: function() {
+    var stats = JSON.parse(this.props.data.data);
+    var ele = document.getElementById(this.props.data.lilly_name);
+    if (stats.online === false) {
+      ele.style.backgroundColor = 'rgb(252, 77, 53)';
+    } else if (stats.playersOnline < 1) {
+      ele.style.backgroundColor = 'rgb(11, 136, 201)';
+    } else if (stats.playersOnline == stats.maxPlayersOnline) {
+      ele.style.backgroundColor = 'rgb(252, 221, 53)';
+    }
+  },
   render: function() {
     var stats = JSON.parse(this.props.data.data);
     return (
-      <div className='server'>
+      <div id={this.props.data.lilly_name} className='server'>
         <div className='server-header'>
           <div className='server-name'>
             {this.props.data.lilly_name}
           </div>
         </div>
         <div className='server-body'>
+          <div className='server-tps'>
+            TPS: {stats.ticksPerSecond.toFixed(3)}
+          </div>
           <div className='server-uptime'>
             Uptime: {stats.uptime}
           </div>

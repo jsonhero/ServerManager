@@ -1,2 +1,1 @@
-
-var mysql = require('mysql');
+var SSH2Shell = require('ssh2shell');

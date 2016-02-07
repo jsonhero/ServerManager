@@ -2,7 +2,6 @@ var SSHPool = require('./SSHLib');
 var Hosts = require('../models/Host');
 var Log = require('../models/Log');
 var fs = require ('fs');
-var actions = new Actions();
 
 function Actions () {
 
@@ -25,9 +24,10 @@ Actions.prototype.createLog = function(options) {
 };
 
 Actions.prototype.screen = function(info, servers, username) {
-  console.log('We got here');
+  console.log("where we at");
   var screenAction = info.data.screenAction;
   var self = this;
+  var commands = [];
   Hosts.find({ 'hostname': { $in: servers }}, function(err, hosts) {
     var ConnectionPool = new SSHPool(hosts);
 
@@ -43,61 +43,108 @@ Actions.prototype.screen = function(info, servers, username) {
 
       conn.cd('/game/servers/', function(err, list) {
         conn.sftp(function(err, sftp) {
+          conn.shell(function(err, stream) {
+            var endOfInput = new RegExp("[>$%#]\\s$");
+            var error = '';
+            var buffer = '';
+            var exit = false;
+
+            function _processData(data) {
+              buffer += data;
+              if (endOfInput.test(buffer) && exit) {
+                options.output.unshift(buffer.toString());
+                conn.end();
+              }
+              if (endOfInput.test(buffer) && commands.length > 0) {
+                console.log(buffer, '<END>');
+                buffer = '';
+                var command = commands.shift();
+                if (commands.length > 0) {
+                  options.output.push(command.info);
+                  stream.write(command.execute);
+                } else {
+                  exit = true;
+                  stream.write('screen -ls' + "\n");
+                }
+              }
+            }
+
+            stream.on('readable', function() {
+              var chunk, results;
+              try {
+                results = [];
+                while ((chunk = stream.read())) {
+                  results.push(_processData("" + chunk));
+                }
+                return results;
+              } catch(e)  {
+                console.log("There was an error: " + e);
+              }
+            });
+
+            stream.stderr.on('data', function(err) {
+              error += data;
+              options.error = true;
+            });
+
+            stream.stderr.on('end', function() {
+              options.output.push(error);
+            });
+
+            stream.on('close', function() {
+              if (!options.error) {
+              }
+            });
+
+
+          var dirCount = 0, dirNum = 0;
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].attrs.isDirectory()) {
+              dirCount++;
+            }
+          }
+
           for (var i = 0; i < list.length; i++) {
             var item = list[i];
             if (item.attrs.isDirectory()) {
               var path = conn.currentPath + item.filename + '/'
               conn.findFile(sftp, path, 'run.sh', function(err, file) {
+                dirNum++;
                 if (err) {
                   options.error = true;
                   options.output.push("ERROR: " + err);
                   return;
                 }
 
-                var stopcommand = "screen -S " + file.path + "-X kill";
-                var startcommand = 'cd ' + path + '; screen -S ' + file.path + ' ./run.sh';
+                var servername = file.path.match(/(server\d+)/)[1];
+                var stopcommand = "screen -X -S " + servername + "-1 quit" + "\n";
+                var startcommand = 'cd ' + path + '; screen -dmS ' + servername + '-1 ./run.sh' + "\n";
+                var command = {};
+                command.info = 'Server ' + servername + ' did ' + screenAction + ' successfully.';
 
                 if (screenAction == 'start') {
-                  runCommand(startcommand);
+                  command.execute = startcommand;
+                  commands.push(command);
                 } else if (screenAction == 'stop') {
-                  runCommand(stopcommand);
+                  command.execute = stopcommand;
+                  commands.push(command);
                 } else if (screenAction == 'restart') {
-                  runCommand(stopcommand);
-                  runCommand(startcommand);
+                  command.execute = stopcommand + " ; " + startcommand;
+                  commands.push(command);
                 }
 
-                function runCommand(cmd) {
-                  conn.exec('ls', function(err, stream) {
-                    if (err) {
-                      console.log('dafuq', err);
-                      return;
-                    }
-                    var error = '';
-                    stream.on('data', function(data) {
-                      options.output.push(data.toString());
-                    });
-
-                    stream.stderr.on('data', function(data) {
-                      error += data;
-                      options.error = true;
-                    });
-
-                    stream.stderr.on('end', function() {
-                      options.output.push(error);
-                    });
-
-                    stream.on('close', function() {
-                      if (!options.error) {
-                        options.output.push(screenAction + " for server " + file.path + " was successful.");
-                      }
-                    });
-                  });
+                if (dirNum == dirCount) {
+                  buffer = '';
+                  options.output.push(commands[0].info);
+                  stream.write(commands[0].execute);
+                  commands.shift();
                 }
               });
             }
           }
         });
-      });
+      })
+    });
 
       conn.on('error', function(err) {
         console.log("CONNECTION ERROR " + conn.config.host, err);
@@ -133,6 +180,7 @@ Actions.prototype.jar = function(info, servers, username) {
     var ConnectionPool = new SSHPool(hosts);
 
     var callback = function(conn) {
+      var commands = [], cmdCount = 0;
 
       var options = {
         host: conn.config.host,
@@ -143,44 +191,95 @@ Actions.prototype.jar = function(info, servers, username) {
         action: info.data.jar
       };
 
+
       conn.cd('/game/servers/', function(err, list) {
-        for (var i = 0; i < list.length; i++) {
-          var item = list[i];
-          if (item.attrs.isDirectory()) {
-            console.log(conn.currentPath, "WATT");
-            conn.findFolder(conn.currentPath + item.filename + '/', 'plugins', function(err, folder) {
-              if (err) {
-                options.error = true;
-                options.output.push("ERROR: " + err);
-                return;
-              }
-              var command = 'cd ' + folder.path + '; curl -O ' + jar.link + ' --fail --silent --show-error';
-              console.log(command, 'COMMAND');
-              conn.exec(command, function(err, stream) {
-                var error = '';
-                stream.on('data', function(data) {
-                  options.output.push(data.toString());
-                });
+        conn.sftp(function(err, sftp) {
+          conn.shell(function(err, stream) {
+            var endOfInput = new RegExp("[>$%#]\\s$");
+            var error = '';
+            var buffer = '';
 
-                stream.stderr.on('data', function(data) {
-                  error += data;
-                  options.error = true;
-                });
-
-                stream.stderr.on('end', function() {
-                  options.output.push(error);
-                });
-
-                stream.on('close', function() {
-                  if (!options.error) {
-                    options.output.push('Copy of ' + jar.name + '.jar to ' + folder.path + ' was successful.');
-                  }
+            function _processData(data) {
+              buffer += data;
+              if (endOfInput.test(buffer) && commands.length > 0) {
+                console.log(buffer, '<END>');
+                buffer = '';
+                var command = commands.shift();
+                if (commands.length > 0) {
+                  options.output.push(command.info);
+                  stream.write(command.execute);
+                } else {
                   conn.end();
-                });
-              });
+                }
+              }
+            }
+
+            stream.on('readable', function() {
+              var chunk, results;
+              try {
+                results = [];
+                while ((chunk = stream.read())) {
+                  results.push(_processData("" + chunk));
+                }
+                return results;
+              } catch(e)  {
+                console.log("There was an error: " + e);
+              }
             });
-          }
-        }
+
+            stream.stderr.on('data', function(err) {
+              error += data;
+              options.error = true;
+            });
+
+            stream.stderr.on('end', function() {
+              options.output.push(error);
+            });
+
+            stream.on('close', function() {
+              if (!options.error) {
+              }
+            });
+
+            var dirCount = 0, dirNum = 0;
+            for (var i = 0; i < list.length; i++) {
+              if (list[i].attrs.isDirectory()) {
+                dirCount++;
+              }
+            }
+
+            for (var i = 0; i < list.length; i++) {
+              var item = list[i];
+              if (item.attrs.isDirectory()) {
+                conn.findFolder(sftp, conn.currentPath + item.filename + '/', 'plugins', function(err, folder) {
+                  dirNum++;
+                  if (err) {
+                    console.log(err);
+                    options.error = true;
+                    options.output.push("ERROR: " + err);
+                    return;
+                  }
+                  if (folder == null) {
+                    console.log('folder hit', folder);
+                    return;
+                  }
+                  var command = {
+                    execute: 'cd ' + folder.path + '; curl -O ' + jar.link + ' --fail --silent --show-error' + '\n',
+                    info: 'Copy of ' + jar.name + '.jar to ' + folder.path + ' was successful.'
+                  }
+
+                  commands.push(command);
+                  if (dirNum == dirCount) {
+                    buffer = '';
+                    options.output.push(commands[0].info);
+                    stream.write(commands[0].execute);
+                    commands.shift();
+                  }
+                });
+              }
+            }
+          });
+        });
       });
 
       conn.on('error', function(err) {
@@ -314,4 +413,4 @@ Actions.prototype.findFolder = function() {
 };
 
 
-module.exports = actions
+module.exports = new Actions();

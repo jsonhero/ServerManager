@@ -66,22 +66,19 @@ Client.prototype.cd = function(path, callback) {
   });
 };
 
-Client.prototype.findFolder = function(path, folder, callback) {
-  this.sftp(function(err, sftp) {
-    sftp.opendir(path, function(err, buffer) {
-      console.log(path, err);
-      sftp.readdir(buffer, function(err, list) {
-        var foundFolder = null;
-        for (var i = 0; i < list.length; i++) {
-          var file = list[i];
-          if (file.attrs.isDirectory() && file.filename == folder) {
-            file.path = path + file.filename;
-            foundFolder = file;
-            break;
-          }
-        };
-        callback(err, foundFolder)
-      });
+Client.prototype.findFolder = function(sftp, path, folder, callback) {
+  sftp.opendir(path, function(err, buffer) {
+    sftp.readdir(buffer, function(err, list) {
+      var foundFolder = null;
+      for (var i = 0; i < list.length; i++) {
+        var file = list[i];
+        if (file.attrs.isDirectory() && file.filename == folder) {
+          file.path = path + file.filename;
+          foundFolder = file;
+          break;
+        }
+      };
+      callback(err, foundFolder)
     });
   });
 };
