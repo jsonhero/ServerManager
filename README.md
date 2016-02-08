@@ -29,6 +29,7 @@ This was the also the first time I've used ReactJS, which I now feel like I have
 - LESS
 - MySQL
 - MongoDB
+- PassportJS
 - SSH
 
 
