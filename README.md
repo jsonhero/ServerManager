@@ -15,7 +15,7 @@ This was the also the first time I've used ReactJS, which I now feel like I have
 
 
 # Planned Future Features
-- Complete recode of SSH system to allow for a more agile enviroment.
+- Complete recode of SSH system to allow for a more agile environment.
 - Live interactive BASH terminal view for servers.
 - Custom action creator.
 - MySQL cache for server status page.
