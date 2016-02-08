@@ -1,4 +1,5 @@
 # Server Manager
+<a data-flickr-embed="true"  href="https://www.flickr.com/photos/139086823@N02/24865767606/" title="Server Manager Example"><img src="https://farm2.staticflickr.com/1471/24865767606_3e315794d0_b.jpg" width="1024" height="640" alt="Server Manager Example"></a>
 
 I created this project to help with development work flow on distrubuted server systems. In it's current state it's pretty biased towards my own system for MineSwine, but I intend to make it more agile.
 
