@@ -1,6 +1,6 @@
 # Server Manager
 
-Example Video: 
+*Example Video*
 
 <a data-flickr-embed="true"  href="https://www.flickr.com/photos/139086823@N02/24865767606/in/dateposted-public/" title="Server Manager Example"><img src="https://farm2.staticflickr.com/1471/24865767606_3e315794d0_b.jpg" width="560" height="300" border="10" alt="Server Manager Example"></a>
 
