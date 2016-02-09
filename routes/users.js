@@ -31,4 +31,5 @@ router.post('/login', passport.authenticate('local', {failureRedirect: '/users/l
     res.redirect('/');
   });
 
+
 module.exports = router;

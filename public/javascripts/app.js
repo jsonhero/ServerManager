@@ -608,6 +608,7 @@ var ActionCopy = React.createClass({
         <div className="input-group">
           <span className="input-group-addon" id="basic-addon1">File To Copy (Located in /manager/copy)</span>
           <select onChange={this.handleCopyChange}className="form-control" aria-describedby="basic-addon1">
+            <option value='' disabled>- Select A File -</option>
             {nodes}
           </select>
         </div>
