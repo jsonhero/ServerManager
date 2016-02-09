@@ -27,6 +27,9 @@ This was the also the first time I've used ReactJS, which I now feel like I have
 # Tech Used
 - Moment.js
 - Node.js
+- BlueBird Promises
+- Archiver (Used for zipping and unzipping folders before and after FTP);
+- Custom Event Emitters
 - Express.js
 - Javascript
 - ReactJS
