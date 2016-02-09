@@ -29,7 +29,23 @@ router.post('/login', passport.authenticate('local', {failureRedirect: '/users/l
     console.log('leggo');
     req.session.user = req.user;
     res.redirect('/');
+});
+
+router.post('/register/:username/:password', function(req, res){
+  User.register(new User({
+    username: req.params.username,
+    password: req.params.password
+  }),
+  req.params.password,
+  function(err, account){
+    if(err) {
+      return res.render('account', {user: user});
+    }
+    passport.authenticate('local')(req, res, function() {
+      res.redirect('/');
+    });
   });
+});
 
 
 module.exports = router;
