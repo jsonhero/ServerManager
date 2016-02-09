@@ -1,5 +1,6 @@
 var archiver = require('archiver');
 var fs = require('fs');
+var rimraf = require('rimraf');
 
 Array.prototype.equals = function (array) {
     // if the other array is a falsy value, return
@@ -69,7 +70,8 @@ Watcher.prototype.zipFolder = function(callback) {
             var zipArchive = archiver('zip');
 
             output.on('close', function() {
-              fs.rmdir(path, function() {
+              rimraf(path, function(e) {
+                console.log('error?', e);
                 self.msg('Zipped and removed original folder for ' + outputPath);
               });
             });
