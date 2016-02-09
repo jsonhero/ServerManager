@@ -7,6 +7,45 @@ function Actions () {
 
 }
 
+Actions.prototype.zipFolder = function(foldername, callback) {
+  var dirContents = fs.readdirSync('./copy');
+  dirContents = dirContents.filter(function(folder) {
+    return folder === foldername;
+  });
+  dirContents.forEach(function(file) {
+    var path = './copy/' + file;
+    fs.stat(path, function(err, stats) {
+      if (stats.isDirectory()) {
+        fs.access(path + '.zip', fs.F_OK, function(err) {
+          if (err) {
+            var outputPath = path + '.zip';
+            var output = fs.createWriteStream(outputPath);
+            var zipArchive = archiver('zip');
+
+            output.on('close', function() {
+                callback();
+                console.log('done with the zip', outputPath);
+            });
+
+            zipArchive.pipe(output);
+
+            zipArchive.bulk([
+                { src: [ '**/*' ], cwd: path, dest: file, expand: true }
+            ]);
+
+            zipArchive.finalize(function(err, bytes) {
+                if(err) {
+                  throw err;
+                }
+                console.log('done:', bytes);
+            });
+          }
+        });
+      }
+    });
+  });
+}
+
 Actions.prototype.createLog = function(options) {
   Hosts.findOne({host: options.host}, function(err, host) {
     Log.create({
@@ -408,8 +447,125 @@ Actions.prototype.put = function(servers, localpath, remotepath, username) {
   });
 };
 
-Actions.prototype.findFolder = function() {
+Actions.prototype.copy = function(info, servers, username) {
+  var pathname = info.data.pathname, copyfile = info.data.copyfile;
+  if (pathname == '') {
+    pathname = '/';
+  }
 
+  var self = this;
+  Hosts.find({ 'hostname': { $in: servers }}, function(err, hosts) {
+    var ConnectionPool = new SSHPool(hosts);
+
+    var callback = function(conn) {
+      console.log('dat path', pathname);
+      var options = {
+        host: conn.config.host,
+        username: username,
+        output: [],
+        error: false,
+        actiontype: 'copy',
+        action: 'Copy ' + copyfile + ' to ' + pathname
+      };
+
+      conn.sftp(function(err, sftp) {
+        sftp.opendir('/game/servers/', function(err, buffer) {
+          sftp.readdir(buffer, function(err, list) {
+
+            var dirCount = 0, dirNum = 0;
+            for (var i = 0; i < list.length; i++) {
+              if (list[i].attrs.isDirectory()) {
+                dirCount++;
+              }
+            }
+
+            for (var i = 0; i < list.length; i++) {
+              var item = list[i];
+              if (item.attrs.isDirectory()) {
+                var serverFolder = '/game/servers/' + item.filename + '/', path;
+                pathname = pathname.split('');
+                if (pathname[0] == '/') pathname.shift();
+                if (pathname[pathname.length -1] == '/') pathname.pop();
+                pathname = pathname.join('');
+                var match = pathname.match(/\/(\w+$)/);
+                if (match) {
+                    serverFolder += pathname.slice(0, match.index + 1)
+                    path = match[1];
+                }
+                console.log(serverFolder, (path || pathname), 'beep');
+                conn.findFolder(sftp, serverFolder, (path || pathname), function(err, folder, sFold) {
+                  if (!folder) {
+                    options.error = true;
+                    options.output.push('Path does not exist for ' + sFold);
+                    dirCount--;
+                    return;
+                  }
+
+                  function copyFile() {
+                    self.zipFolder(path || pathname, function() {
+                      console.log(sFold + (path || pathname) + '/' + copyfile, 'shizzle');
+                      sftp.fastPut('/Users/jasonbratt/Sites/ServerManager/copy/' + copyfile, sFold + (path || pathname) + '/' + copyfile + '/', function(err) {
+                        dirNum++;
+                        if (err) {
+                          console.log('error', err);
+                          options.error = true;
+                          options.output.push(err);
+                        } else {
+                          options.output.push('Copied ' + copyfile + " to " + sFold + (path || pathname) + '/' + copyfile);
+                        }
+
+                        if (dirNum == dirCount) {
+                          conn.end();
+                        }
+                      });
+                    });
+                  }
+
+                  sftp.opendir(folder.path, function(err, buffer) {
+                    sftp.readdir(buffer, function(err, list) {
+                      for (var i = 0; i < list.length; i++) {
+                        var file = list[i];
+                        var hit = false;
+                        if (file.filename == copyfile && file.attrs.isDirectory()) {
+                          hit = true;
+                          }
+                        }
+                        if (hit) {
+                          sftp.rmdir(folder.path + copyfile, function(err) {
+                            copyFile();
+                          });
+                        } else {
+                          copyFile();
+                        }
+                      });
+                    });
+                  });
+                }
+              }
+            });
+          });
+        });
+
+
+      conn.on('error', function(err) {
+        console.log("CONNECTION ERROR " + conn.config.host, err);
+      });
+
+      conn.on('close', function() {
+        self.createLog(options);
+      });
+    };
+
+    var closeback = function() {
+      ConnectionPool.removeListener('ready', callback);
+      ConnectionPool.removeListener('close', closeback);
+    };
+
+    ConnectionPool.on('ready', callback);
+    ConnectionPool.on('close', closeback);
+
+    ConnectionPool.connect();
+  });
 };
 
 

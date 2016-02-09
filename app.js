@@ -17,8 +17,15 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
 var db = require ('./db/database');
+var Autozip = require('./helpers/Autozip.js');
 
 var app = express();
+
+var watcher = new Autozip({
+  watching: './copy/',
+  checkInterval: 2000
+});
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

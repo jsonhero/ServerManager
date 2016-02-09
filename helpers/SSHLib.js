@@ -13,9 +13,8 @@ var MutableInt = function (start) {
   }
 }
 
-Client.prototype.findFolderRecursive = function(path, folder, callback) {
+Client.prototype.findFolderRecursive = function(sftp, path, folder, callback) {
   this.currentPath = path;
-  this.sftp(function(err, sftp) {
     var hits = [];
     var findFolder = readFolder(path);
 
@@ -52,7 +51,6 @@ Client.prototype.findFolderRecursive = function(path, folder, callback) {
     });
   })
   };
-  });
 };
 
 Client.prototype.cd = function(path, callback) {
@@ -67,6 +65,12 @@ Client.prototype.cd = function(path, callback) {
 };
 
 Client.prototype.findFolder = function(sftp, path, folder, callback) {
+  if (folder === '/') {
+    var obj = {
+      path: path
+    }
+    return callback(null, obj, path);
+  }
   sftp.opendir(path, function(err, buffer) {
     sftp.readdir(buffer, function(err, list) {
       var foundFolder = null;
@@ -78,7 +82,7 @@ Client.prototype.findFolder = function(sftp, path, folder, callback) {
           break;
         }
       };
-      callback(err, foundFolder)
+      callback(err, foundFolder, path)
     });
   });
 };

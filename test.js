@@ -1,1 +1,4 @@
-var SSH2Shell = require('ssh2shell');
+var fs = require('fs');
+
+var dirContents = fs.readdirSync('./copy');
+console.log(dirContents);

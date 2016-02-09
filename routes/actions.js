@@ -67,6 +67,20 @@ router.post('/script', function(req, res) {
   });
 });
 
+router.post('/copy', function(req, res) {
+  var username = req.session.user.username;
+  var servers = req.body['servers[]'];
+
+  var info = {
+    data: {
+      copyfile: req.body.copyfile,
+      pathname: req.body.pathname
+    }
+  }
+
+  actions.copy(info, servers, username);
+});
+
 router.get('/history', function(req, res) {
   Log.find({ date: {
     $gte: moment().subtract(10, 'minutes')

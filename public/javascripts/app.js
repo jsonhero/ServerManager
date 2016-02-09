@@ -489,6 +489,13 @@ var ActionScreen = React.createClass({
       this.props.setParentState(this.state.url, this.state.data);
     });
   },
+  componentDidMount: function() {
+    this.setState({
+      data: { screenAction: 'start', type: this.state.type, info: 'start selected servers'}
+    }, function() {
+      this.props.setParentState(this.state.url, this.state.data);
+    });
+  },
   render: function() {
     return (
       <div className='component'>
@@ -549,45 +556,60 @@ var ActionPut = React.createClass({
 
 var ActionFindFolder = React.createClass({
   getInitialState: function() {
-    return {url: '/api/action/findfolder/', data: { foldername: '', pathname: ''}};
-  },
-  handleFolderNameChange: function(e) {
-    var foldername = e.target.value;
-    this.setState({
-      data: { foldername: foldername}
-    }, function() {
-      this.props.setParentState(this.state.url, this.state.data)
-    });
+    return {url: '/api/action/copy/', files: [], data: {copyfile: '', pathname: ''}};
   },
   handlePathNameChange: function(e) {
     var pathname = e.target.value;
-    this.setState({
-      data: { pathname: pathname}
+    this.setState(function(state) {
+      state.data.pathname = pathname;
+      return state;
     }, function() {
       this.props.setParentState(this.state.url, this.state.data)
     });
   },
-  handleFolderActionChange: function(e) {
+  handleCopyChange: function(e) {
+    var file = e.target.value;
+    this.setState(function(state) {
+      state.data.copyfile = file;
+      return state;
+    }, function() {
+      this.props.setParentState(this.state.url, this.state.data)
+    });
+  },
+  componentDidMount: function() {
+    $.ajax({
+      url: '/api/loadcopy',
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState(function(state) {
+          state.files = data;
+          return state;
+        });
+      }.bind(this),
+      error: function() {
 
+      }
+    });
   },
   render: function() {
-
+    var nodes = this.state.files.map(function(file) {
+      return (
+        <option value={file}>{file}</option>
+      )
+    });
     return (
       <div className='action-input'>
+        <label>Copies to all folders in '/game/servers'</label>
         <div className="input-group">
-          <span className="input-group-addon" id="basic-addon1">Action Type:</span>
-          <select aria-describedby="basic-addon1">
-            <option value='list'>list</option>
-            <option value='delete'>delete</option>
+          <span className="input-group-addon" id="basic-addon1">File To Copy (Located in /manager/copy)</span>
+          <select onChange={this.handleCopyChange}className="form-control" aria-describedby="basic-addon1">
+            {nodes}
           </select>
         </div>
         <div className="input-group">
-          <span className="input-group-addon" id="basic-addon1">Path:</span>
-          <input onChange={this.handlePathNameChange} value={this.props.data.pathname} type="text" className="form-control" placeholder="/path/folder" aria-describedby="basic-addon1"/>
-        </div>
-        <div className="input-group">
-          <span className="input-group-addon" id="basic-addon1">Folder Name:</span>
-          <input onChange={this.handleFolderNameChange} value={this.props.data.foldername} type="text" className="form-control" placeholder="kittens" aria-describedby="basic-addon1"/>
+          <span className="input-group-addon" id="basic-addon1">Path to save to</span>
+          <input onChange={this.handlePathNameChange} value={this.props.data.foldername} type="text" className="form-control" placeholder="/plugins/MCRL....Leave blank to copy to server root" aria-describedby="basic-addon1"/>
         </div>
       </div>
     );

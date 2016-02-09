@@ -5,6 +5,7 @@ var fs = require('fs');
 var actions = require('./actions');
 var mysql = require('mysql');
 var Model = require('../models/Script');
+var archiver = require('archiver');
 
 router.use('/action', actions);
 
@@ -106,6 +107,11 @@ router.get('/serverstatus', function(req, res) {
   });
 
   connection.end();
+});
+
+router.get('/loadcopy', function(req, res) {
+  var dirContents = fs.readdirSync('./copy');
+  res.json(dirContents);
 });
 
 module.exports = router;
