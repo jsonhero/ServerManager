@@ -31,7 +31,7 @@ router.post('/login', passport.authenticate('local', {failureRedirect: '/users/l
     res.redirect('/');
 });
 
-router.post('/register/:username/:password', function(req, res){
+router.get('/register/:username/:password', function(req, res){ //Secure because you have to be logged in as verified user to access.
   User.register(new User({
     username: req.params.username,
     password: req.params.password
@@ -39,7 +39,7 @@ router.post('/register/:username/:password', function(req, res){
   req.params.password,
   function(err, account){
     if(err) {
-      return res.render('account', {user: user});
+      console.log("Account creation error!", err);
     }
     passport.authenticate('local')(req, res, function() {
       res.redirect('/');
