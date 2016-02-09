@@ -23,7 +23,7 @@
         <div class='row'>
           <div class='col-lg-3'>
             <h2 class='logo'>
-              Server Panel
+              <a class='no-style' href='/'>Server Panel</a>
             </h2>
           </div>
           {{#if session.user}}
@@ -36,9 +36,9 @@
                       <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                      <li><a href="/manager">Add Server</a></li>
-                      <li><a href="/history">Server History</a></li>
                       <li><a href="/">Server Action</a></li>
+                      <li><a href="/history">Server History</a></li>
+                      <li><a href="/manager">Add Server</a></li>
                       <li><a href="/scriptor">Create Script</a></li>
                       <li><a href="/status">Server Status</a></li>
                     </ul>

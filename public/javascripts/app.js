@@ -558,21 +558,25 @@ var ActionPut = React.createClass({
 
 var ActionCopy = React.createClass({
   getInitialState: function() {
-    return {url: '/api/action/copy/', files: [], data: {copyfile: '', pathname: ''}};
+    return {url: '/api/action/copy/', files: [], data: {type: 'copy', info: '', copyfile: '', pathname: ''}};
   },
   handlePathNameChange: function(e) {
+    var self = this;
     var pathname = e.target.value;
     this.setState(function(state) {
       state.data.pathname = pathname;
+      state.data.info = 'Copy ' + self.state.data.copyfile + ' to /server*/' + pathname;
       return state;
     }, function() {
       this.props.setParentState(this.state.url, this.state.data)
     });
   },
   handleCopyChange: function(e) {
+    var self = this;
     var file = e.target.value;
     this.setState(function(state) {
       state.data.copyfile = file;
+      state.data.info = 'Copy ' + file + ' to /server*/' + self.state.data.pathname;
       return state;
     }, function() {
       this.props.setParentState(this.state.url, this.state.data)
