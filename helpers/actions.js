@@ -359,7 +359,9 @@ Actions.prototype.command = function(info, servers, username) {
   });
 };
 
-Actions.prototype.put = function(servers, localpath, remotepath, username) {
+Actions.prototype.put = function(info, servers, username) {
+  var localpath = info.data.localpath;
+  var remotepath = info.data.remotepath;
   var self = this;
   Hosts.find({ 'hostname': { $in: servers }}, function(err, hosts) {
     var ConnectionPool = new SSHPool(hosts);

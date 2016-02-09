@@ -43,7 +43,14 @@ router.post('/put', function(req, res) {
   var username = req.session.user.username;
   var servers = req.body['servers[]'];
 
-  actions.put(servers, localpath, remotepath, username);
+  var info = {
+    data: {
+      remotepath: remotepath,
+      localpath: localpath
+    }
+  }
+
+  actions.put(info, servers, username);
 });
 
 router.post('/screen', function(req, res) {

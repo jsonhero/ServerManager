@@ -90,12 +90,12 @@ var ServerList = React.createClass({
   render: function() {
     var serverNodes = this.props.data.map(function(server) {
       return(
-        <div className='serverlist-category'>
+        <div key={server.name} className='serverlist-category'>
           <div className='serverlist-header' id={server.name}  onClick={this.clickHandler}>
             {server.name}
             <span className='glyphicon glyphicon-remove category-remove' id={server.name} onClick={this.clickRemove}></span>
           </div>
-          <ServerCategory key={server.name} data={server} />
+          <ServerCategory data={server} />
         </div>
       );
     }.bind(this));
@@ -516,25 +516,29 @@ var ActionPut = React.createClass({
   getInitialState: function() {
     return {
     url: '/api/action/put/',
-    type: 'put',
-    info: '',
-    data: {localpath: '', remotepath: ''}};
+    data: {localpath: '', remotepath: '', type: 'put', info: ''}};
   },
   handleLocalPathChange: function(e) {
-    var info = 'Local: ' + this.state.data.localpath + ' Remote: ' + this.state.data.remotepath;
     var localpath = e.target.value;
-    this.setState({
-      data: { localpath: localpath, remotepath: this.state.data.remotepath, type: this.state.type, info: info}
+    var self = this;
+    this.setState(function(state) {
+      state.data.localpath = localpath;
+      state.data.info = 'Local: ' + localpath + ' Remote: ' + self.state.data.remotepath;
+      return state;
     }, function() {
+      console.log(this.state.data.info);
       this.props.setParentState(this.state.url, this.state.data)
     });
   },
   handleRemotePathChange: function(e) {
-    var info = 'Local: ' + this.state.data.localpath + ' Remote: ' + this.state.data.remotepath;
+    var self = this;
     var remotepath = e.target.value;
-    this.setState({
-      data: { localpath: this.state.data.localpath, remotepath: remotepath, type: this.state.type, info: info}
+    this.setState(function(state) {
+      state.data.remotepath = remotepath;
+      state.data.info = 'Local: ' + self.state.data.localpath + ' Remote: ' + remotepath;
+      return state;
     }, function() {
+      console.log(this.state.data.info);
       this.props.setParentState(this.state.url, this.state.data)
     });
   },
@@ -695,9 +699,9 @@ var StatusBox = React.createClass({
 
 var StatusList = React.createClass({
   render: function() {
-    var nodes = this.props.data.map(function(log) {
+    var nodes = this.props.data.map(function(log, i) {
       return (
-          <StatusRow data={log} />
+          <StatusRow key={i} data={log} />
       )
     }).reverse();
     return (
@@ -1105,7 +1109,7 @@ var ScriptActor = React.createClass({
   render: function() {
     var options = this.state.data.map(function(option) {
       return (
-        <option value={option.name}>{option.name}</option>
+        <option key={option.name} value={option.name}>{option.name}</option>
       )
     });
     return (
