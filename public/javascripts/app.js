@@ -361,6 +361,7 @@ var ActionBox = React.createClass({
   },
   setParentState: function(url, data) {
     this.setState({data: data, url: url}, function() {
+      console.log("I got updated!");
     });
   },
   render: function() {
@@ -526,7 +527,6 @@ var ActionPut = React.createClass({
       state.data.info = 'Local: ' + localpath + ' Remote: ' + self.state.data.remotepath;
       return state;
     }, function() {
-      console.log(this.state.data.info);
       this.props.setParentState(this.state.url, this.state.data)
     });
   },
@@ -538,7 +538,6 @@ var ActionPut = React.createClass({
       state.data.info = 'Local: ' + self.state.data.localpath + ' Remote: ' + remotepath;
       return state;
     }, function() {
-      console.log(this.state.data.info);
       this.props.setParentState(this.state.url, this.state.data)
     });
   },
@@ -624,9 +623,9 @@ var ActionCopy = React.createClass({
 var ActionFooter = React.createClass({
   handleExecute: function(e) {
     var data = this.props.data.data;
-    console.log("hosts", host_queue, this.props);
     data.servers = host_queue;
 
+    console.log("EXECUTING", data);
     if (!this.props.data.url) {
       alert("Enter valid input!");
     }
@@ -720,7 +719,6 @@ var StatusList = React.createClass({
 var StatusRow = React.createClass({
   handleLogClick: function(e) {
     $('#log-output').text(this.props.data.output);
-    console.log(this.props.data.output);
     $('#log-server').text(this.props.data.hostname + ' Output');
     $('#log-date').text(moment(this.props.data.date).format("MMMM Do YYYY, h:mm a"));
     $('#log-cmd').text(this.props.data.actiontype + ": " + this.props.data.action);
