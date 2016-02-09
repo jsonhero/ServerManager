@@ -61,13 +61,12 @@ Actions.prototype.screen = function(info, servers, username) {
               if (endOfInput.test(buffer) && commands.length > 0) {
                 buffer = '';
                 var command = commands.shift();
-                if (commands.length > 0) {
-                  options.output.push(command.info);
-                  stream.write(command.execute);
-                } else {
-                  exit = true;
-                  stream.write('screen -ls' + "\n");
-                }
+                options.output.push(command.info);
+                stream.write(command.execute);
+              } else if (endOfInput.test(buffer) && commands.length === 0 && dirNum == dirCount) {
+                buffer = '';
+                exit = true;
+                stream.write('screen -ls' + "\n");
               }
             }
 
@@ -119,19 +118,19 @@ Actions.prototype.screen = function(info, servers, username) {
                 }
 
                 var servername = file.path.match(/(server\d+)/)[1];
-                var stopcommand = "screen -X -S " + servername + "-1 quit" + "\n";
-                var startcommand = 'cd ' + path + '; screen -dmS ' + servername + '-1 ./run.sh' + "\n";
+                var stopcommand = "screen -X -S " + servername + "-1 quit";
+                var startcommand = 'cd ' + file.path + '; screen -dmS ' + servername + '-1 ./run.sh';
                 var command = {};
                 command.info = 'Server ' + servername + ' did ' + screenAction + ' successfully.';
 
                 if (screenAction == 'start') {
-                  command.execute = startcommand;
+                  command.execute = startcommand + "\n";
                   commands.push(command);
                 } else if (screenAction == 'stop') {
-                  command.execute = stopcommand;
+                  command.execute = stopcommand + "\n";
                   commands.push(command);
                 } else if (screenAction == 'restart') {
-                  command.execute = stopcommand + " ; " + startcommand;
+                  command.execute = stopcommand + " ; " + startcommand + "\n";
                   commands.push(command);
                 }
 
@@ -206,12 +205,10 @@ Actions.prototype.jar = function(info, servers, username) {
               if (endOfInput.test(buffer) && commands.length > 0) {
                 buffer = '';
                 var command = commands.shift();
-                if (commands.length > 0) {
-                  options.output.push(command.info);
-                  stream.write(command.execute);
-                } else {
-                  conn.end();
-                }
+                options.output.push(command.info);
+                stream.write(command.execute);
+              } else if (endOfInput.test(buffer) && commands.length === 0 && dirNum == dirCount) {
+                conn.end();
               }
             }
 
@@ -444,11 +441,9 @@ Actions.prototype.copy = function(info, servers, username) {
                 if (endOfInput.test(buffer) && commands.length > 0) {
                   buffer = '';
                   var command = commands.shift();
-                  if (commands.length > 0) {
-                    stream.write(command);
-                  } else {
-                    conn.end();
-                  }
+                  stream.write(command.execute);
+                } else if (endOfInput.test(buffer) && commands.length === 0 && dirNum == dirCount) {
+                  conn.end();
                 }
               }
 

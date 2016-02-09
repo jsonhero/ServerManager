@@ -861,6 +861,7 @@ var ScriptSelector = React.createClass({
 
       }
     });
+    window.location.reload();
   },
   handleNameChange: function(e) {
     var name = e.target.value;
@@ -880,6 +881,7 @@ var ScriptSelector = React.createClass({
 
       }
     });
+    window.location.reload();
   },
   render: function() {
     var options = this.state.data.map(function(option) {

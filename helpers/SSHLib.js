@@ -94,7 +94,7 @@ Client.prototype.findFile = function(sftp, path, file, callback) {
       for (var i = 0; i < list.length; i++) {
         var Searchfile = list[i];
         if (Searchfile.attrs.isFile() && Searchfile.filename == file) {
-          Searchfile.path = path + Searchfile.filename;
+          Searchfile.path = path;
           foundFile = Searchfile;
           break;
         }
