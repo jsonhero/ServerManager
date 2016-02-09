@@ -12,6 +12,7 @@ router.use('/action', actions);
 router.get('/hosts', function(req, res) {
   Host.find({}, function(err, hosts) {
     res.json(hosts);
+    res.end();
   });
 });
 
@@ -25,17 +26,20 @@ router.post('/hosts', function(req, res) {
     password: host.password
   }, function(err, host) {
     if (err) console.log(err);
+    res.end();
   });
 });
 
 router.delete('/hosts', function(req, res) {
   Host.remove({ hostname: req.body.hostname}, function(err, removed) {
+    res.end();
   });
 });
 
 router.get('/scripts', function(req, res) {
   Model.Script.find({}, function(err, scripts) {
     res.json(scripts);
+    res.end();
   });
 });
 
@@ -43,11 +47,13 @@ router.get('/script/:name', function(req, res) {
   var scriptName = req.params.name;
   Model.Script.findOne({name: scriptName}, function(err, script) {
     res.json(script);
+    res.end();
   });
 });
 
 router.delete('/script', function(req, res) {
   Model.Script.remove({name: req.body.name}, function(err, removed) {
+    res.end();
   });
 });
 
@@ -56,7 +62,7 @@ router.post('/script', function(req, res) {
     name: req.body.name
   }, function(err, script) {
     if (err) throw err;
-
+    res.end();
   });
 });
 
@@ -72,6 +78,7 @@ router.post('/script/action', function(req, res) {
   Model.Script.findOne({name: req.body.script}, function(err, script) {
     script.actions.push(action);
     script.save();
+    res.end();
   });
 });
 
@@ -82,12 +89,14 @@ router.delete('/script/action', function(req, res) {
     });
     script.actions = children;
     script.save();
+    res.end();
   });
 });
 
 router.get('/jars', function(req, res) {
   var contents = fs.readFileSync('jars.json', {encoding: 'utf8'});
   res.send(contents);
+  res.end();
 });
 
 router.get('/serverstatus', function(req, res) {
@@ -112,6 +121,7 @@ router.get('/serverstatus', function(req, res) {
       return row;
     });
     res.json(rows);
+    res.end();
   });
 
   connection.end();
@@ -125,6 +135,7 @@ router.get('/loadcopy', function(req, res) {
     return !stats.isDirectory();
   });
   res.json(filtered);
+  res.end();
 });
 
 module.exports = router;

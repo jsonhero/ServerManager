@@ -19,6 +19,7 @@ router.post('/command', function(req, res) {
   var info = {data: {command: command}};
 
   actions.command(info, servers, username);
+  res.end();
 });
 
 router.post('/folder', function(req, res) {
@@ -33,6 +34,7 @@ router.post('/jar', function(req, res) {
   var info = {data: {jar: jar}};
 
   actions.jar(info, servers, username);
+  res.end();
 });
 
 
@@ -51,6 +53,7 @@ router.post('/put', function(req, res) {
   }
 
   actions.put(info, servers, username);
+  res.end();
 });
 
 router.post('/screen', function(req, res) {
@@ -61,6 +64,7 @@ router.post('/screen', function(req, res) {
   var info = {data: {screenAction: screenAction}};
 
   actions.screen(info, servers, username);
+  res.end();
 });
 
 router.post('/script', function(req, res) {
@@ -72,6 +76,7 @@ router.post('/script', function(req, res) {
       actions[action.type](action, servers, username);
     });
   });
+  res.end();
 });
 
 router.post('/copy', function(req, res) {
@@ -86,6 +91,7 @@ router.post('/copy', function(req, res) {
   }
 
   actions.copy(info, servers, username);
+  res.end();
 });
 
 router.get('/history', function(req, res) {
@@ -94,12 +100,14 @@ router.get('/history', function(req, res) {
   }}, function(err, logs) {
 
     res.json(logs);
+    res.end();
   });
 });
 
 router.get('/allhistory', function(req, res) {
   Log.find({}, function(err, logs) {
     res.json(logs);
+    res.end();
   });
 });
 

@@ -361,7 +361,6 @@ var ActionBox = React.createClass({
   },
   setParentState: function(url, data) {
     this.setState({data: data, url: url}, function() {
-      console.log("I got updated!");
     });
   },
   render: function() {
@@ -625,7 +624,6 @@ var ActionFooter = React.createClass({
     var data = this.props.data.data;
     data.servers = host_queue;
 
-    console.log("EXECUTING", data);
     if (!this.props.data.url) {
       alert("Enter valid input!");
     }
@@ -641,7 +639,6 @@ var ActionFooter = React.createClass({
       dataType: 'json',
       data: data,
       success: function() {
-
       },
       error: function() {
 
