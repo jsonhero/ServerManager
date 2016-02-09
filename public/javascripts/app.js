@@ -330,17 +330,17 @@ var ActionSelector = React.createClass({
             <option value='execute'>
               Execute Command
             </option>
-            <option value='put'>
-              Put
-            </option>
-            <option value='folder'>
-              Find Folders
+            <option value='copy'>
+              Copy
             </option>
             <option value='jar'>
               Update Jars
             </option>
             <option value='screen'>
               Screen Action
+            </option>
+            <option value='put'>
+              Put
             </option>
           </select>
         </div>
@@ -371,9 +371,9 @@ var ActionBox = React.createClass({
     if (actionType == 'execute' || actionType == '') {
       name = 'Execute Command';
       action = <ActionCommand data={this.state.data} setParentState={this.setParentState}/>;
-    } else if (actionType == 'folder') {
-      name = 'Search for a Folder';
-      action = <ActionFindFolder data={this.state.data} setParentState={this.setParentState}/>;
+    } else if (actionType == 'copy') {
+      name = 'Copy File';
+      action = <ActionCopy data={this.state.data} setParentState={this.setParentState}/>;
     } else if (actionType == 'put') {
       name = 'Put a file';
       action = <ActionPut data={this.state.data} setParentState={this.setParentState}/>;
@@ -554,7 +554,7 @@ var ActionPut = React.createClass({
   }
 });
 
-var ActionFindFolder = React.createClass({
+var ActionCopy = React.createClass({
   getInitialState: function() {
     return {url: '/api/action/copy/', files: [], data: {copyfile: '', pathname: ''}};
   },
@@ -1144,7 +1144,7 @@ var ServerStatusBox = React.createClass({
 
     servers.forEach(function(server) {
       var category = server.lilly_name.match(/([a-z]+)_\d+/)[1];
-      var stats = JSON.parse(server.data);
+      var stats = server.data;
       if (!categories[category]) {
         categories[category] = {
           name: category,
@@ -1232,7 +1232,7 @@ var StatusServers = React.createClass({
 
 var StatusServer = React.createClass({
   componentDidMount: function() {
-    var stats = JSON.parse(this.props.data.data);
+    var stats = this.props.data.data;
     var ele = document.getElementById(this.props.data.lilly_name);
     if (stats.online === false) {
       ele.style.backgroundColor = 'rgb(252, 77, 53)';
@@ -1243,7 +1243,7 @@ var StatusServer = React.createClass({
     }
   },
   render: function() {
-    var stats = JSON.parse(this.props.data.data);
+    var stats = this.props.data.data;
     return (
       <div id={this.props.data.lilly_name} className='server'>
         <div className='server-header'>

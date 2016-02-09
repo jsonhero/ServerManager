@@ -5,6 +5,7 @@ var fs = require('fs');
 var actions = require('./actions');
 var mysql = require('mysql');
 var Model = require('../models/Script');
+var moment = require('moment');
 
 router.use('/action', actions);
 
@@ -101,7 +102,15 @@ router.get('/serverstatus', function(req, res) {
 
   connection.query('SELECT * FROM servers_status', function(err, rows, fields) {
     if (err) throw err;
-
+    rows = rows.map(function(row) {
+      row.data = JSON.parse(row.data);
+      var now = moment.utc();
+      if (row.data.lastUpdated < (now - 20000)) {
+        row.data.online = false;
+        row.data.playersOnline = 0;
+      }
+      return row;
+    });
     res.json(rows);
   });
 

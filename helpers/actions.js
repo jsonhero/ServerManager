@@ -28,7 +28,6 @@ Actions.prototype.createLog = function(options) {
 };
 
 Actions.prototype.screen = function(info, servers, username) {
-  console.log("where we at");
   var screenAction = info.data.screenAction;
   var self = this;
   var commands = [];
@@ -60,7 +59,6 @@ Actions.prototype.screen = function(info, servers, username) {
                 conn.end();
               }
               if (endOfInput.test(buffer) && commands.length > 0) {
-                console.log(buffer, '<END>');
                 buffer = '';
                 var command = commands.shift();
                 if (commands.length > 0) {
@@ -206,7 +204,6 @@ Actions.prototype.jar = function(info, servers, username) {
             function _processData(data) {
               buffer += data;
               if (endOfInput.test(buffer) && commands.length > 0) {
-                console.log(buffer, '<END>');
                 buffer = '';
                 var command = commands.shift();
                 if (commands.length > 0) {
@@ -264,7 +261,6 @@ Actions.prototype.jar = function(info, servers, username) {
                     return;
                   }
                   if (folder == null) {
-                    console.log('folder hit', folder);
                     return;
                   }
                   var command = {
@@ -424,7 +420,6 @@ Actions.prototype.copy = function(info, servers, username) {
     var ConnectionPool = new SSHPool(hosts);
 
     var callback = function(conn) {
-      console.log('dat path', pathname);
       var options = {
         host: conn.config.host,
         username: username,
@@ -444,10 +439,7 @@ Actions.prototype.copy = function(info, servers, username) {
 
               function _processData(data) {
                 buffer += data;
-                console.log('lenght', commands[0], commands.length, endOfInput.test(buffer));
-                console.log(buffer.toString());
                 if (endOfInput.test(buffer) && commands.length > 0) {
-                  console.log(buffer, '<END>');
                   buffer = '';
                   var command = commands.shift();
                   if (commands.length > 0) {
@@ -505,7 +497,6 @@ Actions.prototype.copy = function(info, servers, username) {
                     serverFolder += pathname.slice(0, match.index + 1)
                     path = match[1];
                 }
-                console.log(serverFolder, (path || pathname), 'beep');
                 conn.findFolder(sftp, serverFolder, (path || pathname), function(err, folder, sFold) {
                   if (!folder) {
                     options.error = true;
@@ -516,7 +507,6 @@ Actions.prototype.copy = function(info, servers, username) {
 
                   function copyFile() {
                     var copypath = sFold + (path || pathname) + '/' + copyfile;
-                      console.log(sFold + (path || pathname) + '/' + copyfile, 'shizzle');
 
                       sftp.fastPut('/Users/jasonbratt/Sites/ServerManager/copy/' + copyfile, copypath, function(err) {
                         dirNum++;
